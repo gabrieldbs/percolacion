@@ -162,22 +162,23 @@ void  corregir_etiqueta(int *red,int *clase,int n){
 
 
 int   percola(int *red,int n){
-  int etiquetas[n*n];     // Sé que a lo sumo habra n etiquetas en la primera fila
-  int i, res;
+  int etiquetas[n];     // Sé que a lo sumo habra n etiquetas en la primera fila, todas menores a n
+  int i, res, e;
   res = 0;
-  for(i=0;i<n*n;i++){
+  for(i=0;i<n;i++){
   	etiquetas[i]=0;
   }
   for(i=0;i<n;i++){
-  		etiquetas[*(red+i)] = 1;
+  	etiquetas[*(red+i)] = 1;  // pongo 1 si esa etiqueta esta en la primer fila
   }
   for(i=0;i<n;i++){
-  	if (red[n*(n-1)+i]>0 & etiquetas[*(red+(n-1)*n+i)]){
-  		res = 1;
-  		//break;
+	e =red[n*(n-1)+i]; // Guardo la etiqueta en una variable auxiliar para facilitar el manejo
+  	if (e>0 && e<n && etiquetas[e]){ // Me fijo si la etiqueta esta en rango y luego
+  		res = 1;		 // si esa etiqueta ya aparecio en la 1° fila
+  		break;		// Como ya encontre coincidencia, termino el ciclo
   	}
   }
-  return res;  // Si salí del while por j>=n, entonces claramente no hay percolacion (res=0 <-> No hay coincidencia)
+  return res;  
 }
 
 
