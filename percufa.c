@@ -1,3 +1,4 @@
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
@@ -15,6 +16,7 @@ void  corregir_etiqueta(int *red,int *clase,int n);
 int   percola(int *red,int n);
 void  print_red(int* red, int n_fil, int n_col);
 int etiqueta_verdadera(int *clase, int s);
+int* numeros_cluster(int n, int *clase);
 //int* MasPiola(int *red, int n, int *clase);
 
 
@@ -319,4 +321,23 @@ void print_red(int* red, int n_fil, int n_col){
     printf("\n");
   }
 }
-
+ /*
+ Para el  punto dos
+ */
+int* numeros_cluster(int n, int *clase){
+  int n_max=0,i ,j; 
+  int* res;
+  for(i=2;i<n*n;i++){
+    if(clase[i]>n_max){
+      n_max=clase[i];
+    }
+  }
+res=(int *)malloc(n_max*sizeof(int));
+  for(i=0;i<n_max;i++){
+    res[i]=0;
+  }
+  for (j=2;j<n*n;j++){
+    res[clase[j]]++;
+  }   
+  return res;
+}
