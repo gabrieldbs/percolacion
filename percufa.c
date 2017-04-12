@@ -2,10 +2,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include <time.h>
 
-#define P     16             // 1/2^P, P=16
-#define Z     27000        // iteraciones
-#define N     30             // lado de la red simulada
 
 
 void  llenar(int *red,int n, int m, float prob);
@@ -16,104 +14,75 @@ void  corregir_etiqueta(int *red,int *clase,int n);
 int   percola(int *red,int n);
 void  print_red(int* red, int n_fil, int n_col);
 int etiqueta_verdadera(int *clase, int s);
-int* numeros_cluster(int n, int *clase);
+int* numeros_cluster(int n, int *clase, int* n_max);
+void pc_promedio(int* red, int n, int P, float* p, float* var, int It);
 //int* MasPiola(int *red, int n, int *clase);
 
 
-int main(int argc,char *argv[])   // Los argumentos por linea son dimension n y proba p
+int main(int argc,char *argv[])   // Por ahora no hay argumentos por linea
 {
-  int    i,j,k,l,*red,*clase,n,z;
-  float  prob,denominador;
-  prob = 0.5;
 
-  n=N;
-  z=Z;
-  n = 10;
-
+  /* Dejo esto para acordarme como tomar argumentos por linea
   if (argc==3) 
      {
        sscanf(argv[1],"%d",&n);
        sscanf(argv[2],"%f",&prob);
      }
- 
-  red=(int *)malloc(n*n*sizeof(int));
-  
-float s=0;
-float p=0;
-  for(k=0;k<Z;k++){
-  	srand(k);
-  	float step=.5;
-  	prob = 0.5;
-  	for (l = 0; l<P; l++){
-  		step = .5*step;
-  		clase=hoshenVec(red,n,prob);
-  		/*print_red(red,n,n);
-  		printf("\n");
-  		printf("%d\n", percola(red,n));*/
-  		if (percola(red,n)){
-  			prob=prob-step;
-  		}
-  		else{
-  			prob=prob+step;
-  		}
-  		free(clase);
-  		
-  	}
-  		p=p+prob;
-  		s=s+prob*prob;
-  		//printf("%g\n",prob );
-  }
-  p = p/Z;
-  s=s/Z-p*p;
-printf("Promedio %g\n Varianza %g\n",p,s);
- /* 
-  int* clase = hoshenVec(red, n, prob);
-  print_red(red, n,n);
-  int sum=0;
-  int clusters=-1;
-  int zeros=0;
-  int ocupados=0;
-  for(i=0;i<n*n;i++){
-    if(clase[i]>0) {
-      // printf("Etiqueta %d: %d\n", i, clase[i]);
-      sum = sum+clase[i];
-      clusters++;
-    }
-    if(red[i]==0){zeros++;}
-    else {ocupados++;}
-  }
-  // printf("La red es de %d nodos; con %d nodos vacios y %d nodos ocupados (contando con hoshenVec)\n", n*n, clase[0],sum-clase[0]);  // Chequeo que efectivamente conte bien
-  // printf("Contando manualmente, encontramos %d nodos vacios y %d ocupados\n", zeros, ocupados);
-  // printf("Hay %d clusters, cuyo tamaño medio es %f \n", clusters, (float)(sum-clase[0])/clusters); */
-  free(red);
-  //free(clase);
+  */
+
+
 
   return 0;
+}
+
+//  FUNCIONES DE EJERCICIOS
+
+
+// 1.a)
+void pc_promedio(int* red, int n, int P, float* p, float* var, int It){   // Cuando queremos que algo nos devuelva 2+ variables, un buen truco es crearlas fuera de la funcion 
+// (con cualquier valor) y pasarle a la funcion punteros a esa variables, cosa que la funcion se encargue de poner en esa direccion de memoria el valor correcto
+// Si no te gusta, tranquilamente podemos devolver un array de 2 posiciones, pero personalmente preferiria utilizar la menor cantidad de memoria dinamica posible.
+  float prob, step;
+  int *clase;
+  int k,l;
+  *p = 0;
+  *var = 0;
+  for(k=0;k<It;k++){   // Itero It veces
+    srand((unsigned)time(NULL));
+    step=.25;          // Tamaño del paso inicial
+    prob = 0.5;       // Probabilidad inicial
+    for (l = 0; l<P; l++){
+      clase=hoshenVec(red,n,prob);  // Aca es un bajon que clase no tenga utilidad. Si te sirve de consuelo, calcular clase no hace esto apreciablemente lento.
+      free(clase);  
+      if (percola(red,n)){
+        prob=prob-step;     // Si percola, el pc debe estar mas abajo
+      }
+      else{
+        prob=prob+step;     // Si no, debe estar mas arriba
+      }
+    }
+    step = .5*step; // Actualizo el tamaño del paso
+
+    *p = *p+prob;           // Voy sumando los prob para obtener el prob promedio luego
+    *var = *var+prob*prob;  // Voy sumando los prob^2 para obtener la varianza luego
+  }
+  *p = *p/It;           // Divido para obtener el promedio
+  *var = *var/It-(*p)*(*p);   // Divido para obtener el promedio de los prob^2 y le resto el promedio al cuadrado -> Varianza!
 }
 
 
 int   actualizar(int *red,int *clase,int s,int frag){  // Actualizar etiqueta en *red cuando tengo a lo sumo 1 vecino con etiqueta s
   int res = frag;
+  int sv;
   if (s==0){    // Mi vecino no tiene etiqueta -> No tengo etiquetas vecinas -> Creo una nueva
     *red = frag;
     res++;      // Actualizo el nombre de la proxima etiqueta
     clase[frag] = 1;
     // printf("Creamos la nueva etiqueta %d\n", frag);
   }else{        // Mi vecino tiene etiqueta -> Se la copio
-    *red = s;
-
-    // El proximo if no es realmente necesario, lo pongo para que los // printf sean más claros. 
-    //En realidad puede directamente ponerse sv = etiqueta_verdadera(clase,s) y hacer clase[sv]++
-    // En particular, tambien puedo asignar *red = sv para ahorrarme un paso luego en corregir_etiqueta (insisto, no es importante)
-    if(clase[s]<0){   // Mi vecino tiene etiqueta falsa
-      // printf("Agregariamos este nodo a %d, pero es una etiqueta falsa ", s);
-      int sv = etiqueta_verdadera(clase,s);     // Busco la verdadera etiqueta
-      clase[sv]++;                              // Le sumo un nodo
-      // printf("así que en su lugar lo agregamos a %d, que ahora tiene %d nodos \n", sv, clase[sv]);
-    }else{            // Mi vecino tiene etiqueta verdadera -> Al toque!
-      clase[s]++;                              // Le sumo un nodo
-      // printf("Agregamos este nodo a %d, ahora tiene %d nodos \n", s, clase[s]);
-    }
+    sv = etiqueta_verdadera(clase,s);  // Busco la etiqueta verdadera de mi vecino
+    clase[sv]++;                       // Ahora tiene un nodo mas
+    *red = sv;                         // Y el nodo tiene esa etiqueta
   }
   return res;
 }
@@ -122,29 +91,22 @@ void  etiqueta_falsa(int *red,int *clase,int s1,int s2){
 
   int s1v = etiqueta_verdadera(clase,s1);
   int s2v = etiqueta_verdadera(clase,s2);
-
-  // Al terminar este bloque, ya esto seguro que las clases de s1v y 2sv son positivas (porque son verdaderas)
-  // Me fijo cual de las 2 etiquetas VERDADERAS es menor
-  // printf("Etiquetas %d (%d nodos) y %d (%d nodos) en conflicto  -----> ", s1v, clase[s1v], s2v, clase[s2v]);
   if (s1v>s2v){   // s1v es la menor -> Va a ser la verdadera
     *red = s2v;
     clase[s2v]++;                       // Agrego los nuevos nodos a mi 
     clase[s2v] = clase[s1v]+clase[s2v]; // contador de s2v (la etiqueta verdadera)
     clase[s1v]=-s2v;    // Ahora s1v es falsa y su verdadera es s2v
     clase[s1] = -s2v;
-    // printf("La nueva etiqueta es %d con %d nodos\n",s2v,clase[s2v]);
   }else{
     if (s1v==s2v){ // Son la misma etiqueta, no pasa una
       *red = s1v;
       clase[s1v]++;
-      // printf("Son la misma etiqueta, ahora hay %d \n",clase[s1v]);
     }else{ // s1v es la menor -> Va a ser la verdadera
       *red = s1v;
       clase[s1v]++;                       // Agrego los nuevos nodos a mi 
       clase[s1v] = clase[s1v]+clase[s2v]; // contador de s2v (la etiqueta verdadera)
       clase[s2v]=-s1v;    // Ahora s2v es falsa y su verdadera es s1v
       clase[s2] = -s1v;
-      // printf("La nueva etiqueta es %d con %d nodos\n",s1v,clase[s1v]);
     }
   }
 }
@@ -223,19 +185,16 @@ int* hoshenVec(int *red,int n, float prob)    // En este hoshen la convención e
   int s = rand();
   // printf("(0,0):   ");
   if (s<prob*RAND_MAX){
-    // printf("El primero esta ocupado\n");
     frag=actualizar(red,clase,s1,frag);
   }else{
     clase[0]++;
     red[0] = 0;
-    // printf("Nodo vacio\n");
   }
   
   // primera fila de la red
 
   for(i=1;i<n;i++) 
     {
-      // printf("(0,%d):   ", i);
       int s = rand();
       if (s<prob*RAND_MAX) 
          {
@@ -244,7 +203,6 @@ int* hoshenVec(int *red,int n, float prob)    // En este hoshen la convención e
          }else{
            clase[0]++;
            red[i] = 0;
-           // printf("Nodo vacio\n");
          }
     }
   
@@ -257,7 +215,6 @@ int* hoshenVec(int *red,int n, float prob)    // En este hoshen la convención e
       int s = rand();
 
       // primer elemento de cada fila
-      // printf("(%d,0):   ", i/n);
       if (s<prob*RAND_MAX) 
          {
            s1=*(red+i-n); 
@@ -265,12 +222,10 @@ int* hoshenVec(int *red,int n, float prob)    // En este hoshen la convención e
          }else{
           clase[0]++;
           red[i]=0;
-          // printf("Nodo vacio\n");
         }
 
       for(j=1;j<n;j++){
-        // printf("(%d,%d):   ", i/n, j);
-        int s = rand();
+         int s = rand();
 	if (s<prob*RAND_MAX)
 	  {
 	    s1=*(red+i+j-1); 
@@ -287,7 +242,6 @@ int* hoshenVec(int *red,int n, float prob)    // En este hoshen la convención e
 	  }else {
       red[i+j] = 0;
       clase[0]++;
-      // printf("Nodo vacio\n");
     }
     }
   }
@@ -324,20 +278,45 @@ void print_red(int* red, int n_fil, int n_col){
  /*
  Para el  punto dos
  */
-int* numeros_cluster(int n, int *clase){
-  int n_max=0,i ,j; 
-  int* res;
-  for(i=2;i<n*n;i++){
-    if(clase[i]>n_max){
-      n_max=clase[i];
+int* numeros_cluster(int n, int *clase, int* n_max){  // La funcion recibe como argumento un puntero a n_max cuya contenido no importa, sino que solo
+  int i ,j;                                           // es un contenedor para que al final de la función tendrá el tamaño del máximo cluster        
+  int* res;                                           // Si no hicieramos esto, ¿como sabriamos la longitud de res fuera de la funcion?
+  for(i=2;i<n*n;i++){   // Buscamos el valor de n_max, correspondiente
+    if(clase[i]>*n_max){ // al tamaño del cluster mas grande
+      *n_max=clase[i];
     }
   }
-res=(int *)malloc(n_max*sizeof(int));
-  for(i=0;i<n_max;i++){
+res=(int *)malloc((*n_max)*sizeof(int)); // Creamos el resultado; un vector cuya i-esima posicion es la cantidad de clusters de tamaño i
+  for(i=0;i<*n_max;i++){       // Lo inicializamos en 0
     res[i]=0;
   }
-  for (j=2;j<n*n;j++){
-    res[clase[j]]++;
+  for (j=2;j<n*n;j++){  // Cada etiqueta (verdadera) i que nos crucemos tiene un tamaño clase[i], por lo que debemos sumar 1 a res[clase[i]]
+    if(clase[j]>0){ // Obviamente, no queremos contar etiquetas falsas
+      res[clase[j]]++;
+    }
   }   
   return res;
 }
+
+/* Acá abajo pongo una lista de funciones (con declaracion tentativa) que faltaría hacer. Agreguemos a medida que se nos ocurran.
+
+float* histograma(int* red, int* n, float* probas, int* m, int It)  
+Dado un vector de probas (longitud m) y una red de nxn, se fija para cada probas[i] si percola It veces, poniendo en resultado[i] el porcentaje de veces que percolo
+
+float mediana(float* probas, float* F, int n)
+Busca el indice j cuyo F[j] es más cercano a 1/2 y devuelve el valor probas[j] (n es la longitud de los vectores)
+
+float mediana_bisec(int* red, int* n, int* m, int It, int pres)
+Esta es la mia: 
+Dada una red de nxn, arranca en p=1/2 y obtiene F(p) viendo el porcentaje de percolaciones de It iteraciones. En la (i+1)-esima iteracion, si el F(p) en la i-esima
+es menor a 1/2, entonces vuelve a hacerlo con p = p+1/2^i; sino lo hace con p = p-1/2^i. El proceso termina cuando i<pres (pues tengo precision de 1/2^pres).
+
+float masa_percolante(int* red, int n, float pc, int It)
+Mediante It iteraciones, obtiene la masa media M para una red de nxn
+
+float* dimension_fractal(int* red, int* N, float* pc, int m,int It)
+Mediante It iteraciones, obtiene un vector de masas medias M cuyo M[i] es la masa media para una red de N[i]xN[i] y proba critica pc[i] (los 3 arrays de longitud m)
+Basicamente, aplicar la funcion masa_percolante pero para cada una de los m tamaños de redes.
+
+
+*/
