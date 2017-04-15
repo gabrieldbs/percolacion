@@ -298,6 +298,59 @@ res=(int *)malloc((*n_max)*sizeof(int)); // Creamos el resultado; un vector cuya
   return res;
 }
 
+
+// Ejercicio 2
+
+float* masa_percolante(int* red, int n, float* p, int m, int It){
+  int i,j,perc, cantperc, *clase;
+  float *res;
+  res=(float *)malloc(m*sizeof(float));
+  for(i=0;i<m;i++){
+    res[i] = 0;
+    cantperc=0;
+    while(cantperc<It){               // Es importante que todos los p[i] tengan la misma
+      clase = hoshenVec(red,n,p[i]);  // la misma cantidad de puntos para el promedio
+      perc = percola(red,n);          // OJO que p[i]=0 da ciclo infinito!
+      if (perc>0){
+        res[i] = res[i]+clase[perc];  // Sumo la masa del cluster percolante actual y la
+        cantperc++;                   // cantidad de percolaciones para promediar luego
+      }
+    }
+    res[i] = res[i]/cantperc;   // Divido para obtene el promedio
+    free(clase);
+  }
+  return res;
+}
+
+
+float* mediana_bisec(int* red, int* n, int m, int It, int pres){
+  int i,j,k,cantperc, *clase;
+  float *res,step,prob;
+  res=(float *)malloc(m*sizeof(float));  // Cada res[i] es la pc de la red de n[i]xn[i]
+  for(i=0;i<m;i++){ // Calculo el pc para la red de lado n[i]
+    step = 0.25;  // Paso inicial
+    prob = 0.5;   // Probabilidad inicial
+    for(j=0;j<pres;j++){ 
+      cantperc = 0; // Cuento la cantidad de veces que percola
+      for(k=0;k<It;k++){
+        clase = hoshenVec(red,n[i],prob); 
+        free(clase);
+        if(percola(red,n[i])>0){
+          cantperc++;
+        }
+      }
+      if(2*cantperc>It){ // Si percola mas de la mitad de las veces, me pase con la roba
+        prob = prob-step;
+      }else{ // Sino, me quede corto
+        prob = prob+step;
+      }
+      step = 0.5*step; // Actualizo el paso
+    }
+    res[i] = prob; // Al terminar, asigno el pc con un error de 1/2^pres
+  }
+  return res;
+}
+
 /* Acá abajo pongo una lista de funciones (con declaracion tentativa) que faltaría hacer. Agreguemos a medida que se nos ocurran.
 
 float* histograma(int* red, int* n, float* probas, int* m, int It)  
@@ -306,13 +359,13 @@ Dado un vector de probas (longitud m) y una red de nxn, se fija para cada probas
 float mediana(float* probas, float* F, int n)
 Busca el indice j cuyo F[j] es más cercano a 1/2 y devuelve el valor probas[j] (n es la longitud de los vectores)
 
-float mediana_bisec(int* red, int* n, int* m, int It, int pres)
+float mediana_bisec(int* red, int* n, int m, int It, int pres)
 Esta es la mia: 
 Dada una red de nxn, arranca en p=1/2 y obtiene F(p) viendo el porcentaje de percolaciones de It iteraciones. En la (i+1)-esima iteracion, si el F(p) en la i-esima
 es menor a 1/2, entonces vuelve a hacerlo con p = p+1/2^i; sino lo hace con p = p-1/2^i. El proceso termina cuando i<pres (pues tengo precision de 1/2^pres).
 
-float masa_percolante(int* red, int n, float pc, int It)
-Mediante It iteraciones, obtiene la masa media M para una red de nxn
+float* masa_percolante(int* red, int n, float* p, int m, int It)
+Mediante It iteraciones, obtiene la masa media M para una red de nxn en funcion de los p[i].
 
 float* dimension_fractal(int* red, int* N, float* pc, int m,int It)
 Mediante It iteraciones, obtiene un vector de masas medias M cuyo M[i] es la masa media para una red de N[i]xN[i] y proba critica pc[i] (los 3 arrays de longitud m)
