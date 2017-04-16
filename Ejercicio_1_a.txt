@@ -1,0 +1,9 @@
+Simulacion con presicion 1/2^10 y 30000 iteraciones por red
+Duracion: 0 horas, 22 minutos y 4 segundos
+Los resultados son: 
+4x4: 0.489026 0.000221  en 0hs, 0min, 1segs
+16x16: 0.578479 0.000871  en 0hs, 0min, 16segs
+32x32: 0.590767 0.000651  en 0hs, 1min, 1segs
+64x64: 0.594236 0.000294  en 0hs, 4min, 9segs
+128x128: 0.592372 0.000079  en 0hs, 16min, 37segs
+
