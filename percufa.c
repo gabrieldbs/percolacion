@@ -150,7 +150,7 @@ void pc_promedio(int* red, int n, int P, float* p, float* var, int It){   // Cua
     for (l = 0; l<P; l++){
       clase=hoshenVec(red,n,prob);  // Aca es un bajon que clase no tenga utilidad. Si te sirve de consuelo, calcular clase no hace esto apreciablemente lento.
       free(clase);  
-      if (percola(red,n)){
+      if (percola(red,n)>0){
         prob=prob-step;     // Si percola, el pc debe estar mas abajo
       }
       else{
@@ -221,7 +221,7 @@ void  corregir_etiqueta(int *red,int *clase,int n){
 }
 
 
-int   percola(int *red,int n){
+int   percola(int *red,int n){      // Devuelve 0 si no percolo y la etiqueta de un cluster percolante si hubo percolacion
   int etiquetas[n];     // Sé que a lo sumo habra n etiquetas en la primera fila, todas menores a n
   int i, res, e;
   res = 0;
@@ -233,9 +233,10 @@ int   percola(int *red,int n){
   }
   for(i=0;i<n;i++){
 	e =red[n*(n-1)+i]; // Guardo la etiqueta en una variable auxiliar para facilitar el manejo
-  	if (e>0 && e<n && etiquetas[e]){ // Me fijo si la etiqueta esta en rango y luego
-  		res = e;		 // si esa etiqueta ya aparecio en la 1° fila
-  		break;		// Como ya encontre coincidencia, termino el ciclo
+<<<<<<< HEAD
+  	if (e>0 && e<n && etiquetas[e]){ // Me fijo si la etiqueta esta en rango y luego si esa
+  		res = e;		                   // ya aparecio en la 1° fila. Si lo hizo, la devuelvo.
+  		break;		// Como ya encontre coincidencia, termino el ciclo (¡con toda violencia!)
   	}
   }
   return res;  
