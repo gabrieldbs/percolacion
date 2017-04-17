@@ -17,7 +17,10 @@ int etiqueta_verdadera(int *clase, int s);
 int* numeros_cluster(int n, int *clase, int* n_max);
 void pc_promedio(int* red, int n, int P, float* p, float* var, int It);
 float* masa_percolante(int* red, int n, float* p, int m, int It);
+float* masa_percolante2(int* red, int n, float pmin, int m, int It);
 float* mediana_bisec(int* n, int m, int It, int pres);
+float* histograma(int* red,int n,int m, int It);
+float percentil(float* F, int m, float alfa);
 
 
 int main(int argc,char *argv[])   // Por ahora no hay argumentos por linea
@@ -72,8 +75,6 @@ int main(int argc,char *argv[])   // Por ahora no hay argumentos por linea
     int *n, i,j;
     float *pcs;
     n = (int *) malloc(sizeof(int));
-    pcs = (float *) malloc((argc-3)*sizeof(int));
-    vars = (float *) malloc((argc-3)*sizeof(int));
     sscanf(argv[1], "%d", &pres); // Precision 1/2^pres
     sscanf(argv[2], "%d", &It); // Cantidad de iteraciones
     for(i=3;i<argc;i++){  // Tomo el vector de dimensiones
@@ -84,13 +85,93 @@ int main(int argc,char *argv[])   // Por ahora no hay argumentos por linea
      free(n);
      */
 
+// Ejercicio 1.b) entero
+// Toma los argumentos por consola como el problema 1.a) pero con cantidad de probas en lugar de presicion
+    int *n, i,j, *red, m, It, *secs, secsTot;
+    float *F, *pcs,*pmin;
+    float alfa = 0.01;
+    n = (int *) malloc((argc-3)*sizeof(int));
+    pcs = (float *) malloc((argc-3)*sizeof(float));
+    red = (int *) malloc(sizeof(int));
+    sscanf(argv[1], "%d", &m); // Cantidad de probas en el histograma
+    sscanf(argv[2], "%d", &It); // Cantidad de iteraciones
+    FILE* fp = fopen("Ejercicio_1_b.txt","a");
+    fprintf(fp, "Simulacion con %d probabilidades y %d iteraciones por red\n", m, It);
+    fprintf(fp, "Los resultados son: \n");
+    secs = (int *) malloc((argc-3)*sizeof(int));
+    secsTot = time(NULL);
+    for(i=3;i<argc;i++){  // Tomo el vector de dimensiones
+      sscanf(argv[i], "%d", &n[i-3]); // Tomo las dimensiones de las redes
+      red = (int *) realloc(red, n[i-3]*n[i-3]*sizeof(int));
+      printf("Arranco %d\n", n[i-3]);
+      secs[i-3] = time(NULL);
+      F = histograma(red, n[i-3], m, It);
+      pcs[i-3] = percentil(F,m,0.5); // Esta operacion deberia tomar un tiempo ~log2(m) y por lo tanto lo que tarda es despreciable frente a histograma
+      secs[i-3] = time(NULL)-secs[i-3];
+      fprintf(fp, "%dx%d con pc = %f  (en %dhs, %dmin, %dsegs) \n", n[i-3],n[i-3],pcs[i-3],secs[i-3]/3600,secs[i-3]/60 % 60,secs[i-3] % 60);
+      for(j=0;j<m;j++){
+        fprintf(fp, "%f ", F[j]);
+      }
+      fprintf(fp, "\n");
+      free(F);
+    }
+    secsTot = time(NULL)-secsTot;int mins = secsTot/60;int horas = mins/60;
+    fprintf(fp, "Duracion total: %d horas, %d minutos y %d segundos\n\n", horas, mins % 60, secsTot % 60);
+    fclose(fp);
+    free(n);
+    free(red);
+    free(secs);
+    free(pcs);
+
+/*
+// Ejercicio 2, version masa_percolante2 
+// Toma los argumentos por consola como el problema 2 de abajo, pero luego del vector de n toma un vector de pmin de la misma 
+// longitud que n (son las pmin de cada tamaño de red, obtenidas de los datos del ejercicio 1.b)
+    int *red,*n, i,j,m,It,*secs,secsTot;
+    float *Fp, *pmin;
+    sscanf(argv[1], "%d", &m); // Cantidad de probas
+    sscanf(argv[2], "%d", &It); // Cantidad de iteraciones
+    n = (int *) malloc(argc*sizeof(int));
+    pmin = (float *) malloc(m*sizeof(float));
+    secs = (int *) malloc((argc-3)*sizeof(int));
+    red = (int *) malloc((argc-3)*(argc-3)*sizeof(int));
+    FILE *fp = fopen("Ejercicio_2_v2.txt","a");  // Escribo los resultados en un archivo
+    fprintf(fp, "Simulacion con %d probabilidades (salto de %f) y %d iteraciones en cada una\n", m,1.0/m, It);
+    fprintf(fp, "Los resultados son: \n");
+    secsTot = time(NULL);
+    for(i=0;i<(argc-3)/2;i++){  // Tomo el vector de dimensiones
+      sscanf(argv[i+3], "%d", &n[i]);
+      sscanf(argv[2*i+3], "%f", &pmin[i]);
+      red = (int *) realloc(red, n[i]*n[i]*sizeof(int));
+      secs[i] = time(NULL);
+      Fp = masa_percolante2(red, n[i],pmin[i], m, It);
+      secs[i] = time(NULL)-secs[i];
+      printf("%d terminado \n", n[i]);
+      fprintf(fp, "%dx%d en %dhs, %dmin, %dsegs\n", n[i],n[i],secs[i]/3600,secs[i]/60 % 60,secs[i] % 60);
+      for(j=0;j<m;j++){
+        fprintf(fp, "%f ", Fp[j]);
+      }
+      fprintf(fp, "\n");
+      free(Fp);
+    }
+    secsTot = time(NULL)-secsTot;int mins = secsTot/60;int horas = mins/60;
+    fprintf(fp, "Duracion total: %d horas, %d minutos y %d segundos\n", horas, mins % 60, secsTot % 60);
+    fprintf(fp, "\n");
+    fclose(fp);
+    free(red);
+    free(n);
+    free(secs);
+    free(pmin);
+*/
+
+/*
 // Ejercicio 2: Masa percolante
 // La cantidad de probas a tomar entre pmin y 1, la cantidad de iteraciones y el vector de 
 // dimensiones se toman, en orden, directo de la consola al correr el programa
     int *red,*n, i,j,m,It,*secs,secsTot;
     float *probas,*Fp;
     float pmin = 0;
-    sscanf(argv[1], "%d", &m); // Precision 1/2^pres
+    sscanf(argv[1], "%d", &m); // Cantidad de probas
     sscanf(argv[2], "%d", &It); // Cantidad de iteraciones
     n = (int *) malloc(argc*sizeof(int));
     probas = (float *) malloc(m*sizeof(float));
@@ -124,7 +205,8 @@ int main(int argc,char *argv[])   // Por ahora no hay argumentos por linea
     free(red);
     free(n);
     free(secs);
-    free(probas);
+    free(probas);*/
+
 
 
 
@@ -394,6 +476,50 @@ res=(int *)malloc((*n_max)*sizeof(int)); // Creamos el resultado; un vector cuya
   return res;
 }
 
+// Ejercicio 1.b)
+
+float* histograma(int* red,int n,int m, int It){
+  int i,j;
+  float p;
+  float *res;
+  int *clase;
+  // probas=(float *)malloc(m*sizeof(float));       // aca la idea es armar un vector de m lugares por eso use el malloc para cada una de las probabilidades
+  // Dado que las probas no son argumento de entrada ni de salida, crear este vector no tendría mucha utilidad. En todo caso, podemos reconstruirlo conociendo m
+  res = (float *) malloc(m*sizeof(float)); // Como cantperco era un múltiplo de res, me ahorro crear ese vector y lo laburo todo sobre res.
+  for (j=0;j<m;j++){             // primero  hago un for para las probabilidades
+    p=(j+1.0)/m; // Me aseguro de tener p=1 y no p=0
+    if(j==m/2){printf("Por la mitad\n");}
+    int cperco=0;
+    for(i=0;i<It;i++){    // Ahora quiero hacer correr  el echo de que  para cada proba itere IT veces;
+      clase=hoshenVec(red,n,p);
+      free(clase);
+      if (percola(red,n)>0){ // la idea es si percola que sume uno 
+        cperco++;     
+      }
+    //probas[j]=p;    // aca mi idea es que tire el vector de probas
+    }
+    res[j]=cperco*1.0/It;  // aca la idea seria que tire el vector con  la  cantidad de percola para cada casillero --- Me ahorre el siguiente for dividiendo in-situ     
+  }
+  return res;
+}
+
+float percentil(float* F, int m, float alfa){ // Dado un array F y su longitud m, busca el indice i tal que F[i]=alfa
+  int inf, sup, med; // A lo largo del ciclo, se que el indice que busco (i) esta entre inf y sup (inf<=i<=sup)
+  inf = 0;
+  sup = m-1;
+  med = (inf+sup)/2;
+  while(inf+1<sup){
+    med = (inf+sup)/2;
+    if (F[med]>alfa){   // Si F[med]>alfa, entonces el indice que busco esta entre inf y med
+      sup = med;
+    }else{    // Si F[med]>alfa, entonces el indice que busco esta entre med y sup
+      inf = med;
+    }
+  }
+  // return (med+1.0)/m; // Sabiendo que los p estan equiespaciados en (0,1], puedo obtener el p sabiendo el indice 
+  return (med+1.0+(alfa-F[med])/(F[med+1]-F[med]))/m; // Este es como el de arriba pero además interpola (estoy abusando el hecho de que med<m si alfa<1)
+}
+
 
 // Ejercicio 2
 
@@ -432,6 +558,38 @@ float* masa_percolante(int* red, int n, float* p, int m, int It){
 // Si tomamos N>m^2 => P(|p-p(N)|>1/m) < s^2 con s^2 = p(1-p)  (varianza de la Bernoulli)
 // Por lo tanto, si p es muy chico, s^2= p-p^2 =~ p y por lo tanto la chance de que sean distinguibles es baja
 
+float* masa_percolante2(int* red, int n, float pmin, int m, int It){
+  int i,j,perc, cantperc, *clase;
+  float *res, p,step;
+  p = pmin;
+  res=(float *)malloc(m*sizeof(float));
+  j = 1;
+  while(j<pmin*m){      // Seteo los valores de las probas menores a pmin en 0
+    res[j]=0; 
+    j++;
+  }
+  for(i=j;i<m;i++){   // Una vez que superé el pmin, calculo el resto normalmente
+    p = j*1.0/m;
+    res[i] = 0;
+    cantperc=0;
+    j=0;
+    while(cantperc<It){                   // Es importante que todos los p[i] tengan la misma
+      clase = hoshenVec(red,n,p);  // la misma cantidad de puntos para el promedio
+      perc = percola(red,n);              // OJO que p[i]=0 da ciclo infinito!
+      if (perc>0){
+        res[i] = res[i]+clase[perc];  // Sumo la masa del cluster percolante actual y la
+        cantperc++;                   // cantidad de percolaciones para promediar luego
+      }
+      j++; 
+      free(clase);
+    }
+    if (cantperc!=0){
+      res[i] = res[i]/(float)cantperc;   // Divido para obtener el promedio
+    }
+  }
+  return res;
+}
+
 
 float* mediana_bisec(int* n, int m, int It, int pres){
   int i,j,k,cantperc, *clase, *red;
@@ -465,72 +623,6 @@ float* mediana_bisec(int* n, int m, int It, int pres){
   }
   free(red);
   return res;
-}
-
-/*
-Subo la funcion histograma y ahi puse para lo que seria el 1.b como se me ocurrio que podria funcionar no lo compile para ver si tenia errores pero me parece que se puede aprovechar y hacerlo todo junto
-*/
-
-float* histograma(int* red,int* n,int* m, int It){
-int i,j;
-float p;
-
-float *probas;
-int *clase;
-probas=(float *)malloc(m*sizeof(float));       \\ aca la idea es armar un vector de m lugares por eso 							use el malloc para cada una de las probabilidades
-cantperco=(int *)malloc(m*sizeof(int));        \\ aca la idea es armar una tira tambien de m lugares 						para poner en cada lugar la  cantidad de veces que percola
-for (j=0;j<m;j++){			       \\ primero  hago un for para las probabilidades
-		p=j/m;
-	
-		int cperco=0;
-		for(i=0;i<It;i++){		\\ Ahora quiero hacer correr  el echo de que  para cada proba itere IT veces;
-		  clase=hoshenVec(red,n,p);
-		  free(clase);
-		      if (percola(*red,n)>0){	\\ la idea es si percola que sume uno 
-		      cperco++;			
-		                 }
-		probas[j]=p;		\\ aca mi idea es que tire el vector de probas
-		cantperco[j]=cperco;	\\ aca la idea seria que tire el vector con  la  cantidad de percola para cada casillero, 		
-	 	}
-for(l=0;l<m;l++){
-	res[l]= cantperco[l]/It;
-		}
-
-/*
-Dentro del mismo lo que tenia pensado era que me tire como resultado el valos del pc
-para eso mi idea era hacer un while que tome hasta que pase 0.5 y despues me de el
-valor de la tira de probas que corresponde a ese valor  
-*/
-int l=0,a=0;
-while(res[l]<0.5){
-	pc=probas[l];  //este va a a ser mi primera opcion para pc
-	a=l;  		// esta va a  ser la posicion 
-	l++; 		//no se si esto hacce falta dentro del while	
-	}	
-pcc=probas[a+1]; 	//tomo la siguiente por las dudas
-float m;		//en todo esto la idea es compara las dos y ver cual es mayor
-if(res[a]-0.5<0){
-	m=-(res[a]-0.5);
-	}
-else{	
-	m=res[a]-0.5;			
-	}
-float n;
-if(res[a+1]-0.5<0){
-	n=-(res[a+1]-0.5);
-	}
-else{	
-	n=res[a+1]-0.5;			
-	}
-if(m<n){		// si la segunda  esta mas cerca entonces cambio el pc
-	pc=pcc;	
-	}
-else{
-	pc=pc;		//sino lo dejo igual esto no hace falta
-	}
-return pc
-free(probas);
-return res;
 }
 
 
