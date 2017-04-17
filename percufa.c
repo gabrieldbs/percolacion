@@ -89,7 +89,7 @@ int main(int argc,char *argv[])   // Por ahora no hay argumentos por linea
 // dimensiones se toman, en orden, directo de la consola al correr el programa
     int *red,*n, i,j,m,It,*secs,secsTot;
     float *probas,*Fp;
-    float pmin = 0.4;
+    float pmin = 0;
     sscanf(argv[1], "%d", &m); // Precision 1/2^pres
     sscanf(argv[2], "%d", &It); // Cantidad de iteraciones
     n = (int *) malloc(argc*sizeof(int));
@@ -97,7 +97,7 @@ int main(int argc,char *argv[])   // Por ahora no hay argumentos por linea
     secs = (int *) malloc((argc-3)*sizeof(int));
     red = (int *) malloc((argc-3)*(argc-3)*sizeof(int));
     FILE *fp = fopen("Ejercicio_2.txt","a");  // Escribo los resultados en un archivo
-    fprintf(fp, "Simulacion con %d probabilidades y %d iteraciones en cada una\n", m, It);
+    fprintf(fp, "Simulacion con %d probabilidades (salto de %f) y %d iteraciones en cada una\n", m,1.0/m, It);
     fprintf(fp, "Los resultados son: \n");
     secsTot = time(NULL);
     for(i=1;i<m+1;i++){
@@ -109,6 +109,7 @@ int main(int argc,char *argv[])   // Por ahora no hay argumentos por linea
       secs[i-3] = time(NULL);
       Fp = masa_percolante(red, n[i-3],probas, m, It);
       secs[i-3] = time(NULL)-secs[i-3];
+      printf("%d terminado \n", n[i-3]);
       fprintf(fp, "%dx%d en %dhs, %dmin, %dsegs\n", n[i-3],n[i-3],secs[i-3]/3600,secs[i-3]/60 % 60,secs[i-3] % 60);
       for(j=0;j<m;j++){
         fprintf(fp, "%f ", Fp[j]);
@@ -403,19 +404,26 @@ float* masa_percolante(int* red, int n, float* p, int m, int It){
   for(i=0;i<m;i++){
     res[i] = 0;
     cantperc=0;
-    //for(j=0;j<It;j++){ // Si no percola en It veces, podemos asumir que no percola para esa proba
-    while(cantperc<It ){               // Es importante que todos los p[i] tengan la misma
+    j=0;
+    while(cantperc<It){                   // Es importante que todos los p[i] tengan la misma
       clase = hoshenVec(red,n,p[i]);  // la misma cantidad de puntos para el promedio
-      perc = percola(red,n);          // OJO que p[i]=0 da ciclo infinito!
+      perc = percola(red,n);              // OJO que p[i]=0 da ciclo infinito!
       if (perc>0){
         res[i] = res[i]+clase[perc];  // Sumo la masa del cluster percolante actual y la
         cantperc++;                   // cantidad de percolaciones para promediar luego
+        //printf("%d\n", cantperc);
+      }
+      j++;
+      if (j>10*m && cantperc*m<j){ // Una vez que hubo "suficientes iteraciones"
+        res[i] = 0;     // cantperc/j<1/m (proporcion de percolaciones < resolucion de probas)
+        break;
       }
       free(clase);
     }
     if (cantperc!=0){
       res[i] = res[i]/(float)cantperc;   // Divido para obtener el promedio
     }
+    //printf("%f\n", p[i]);
   }
   return res;
 }
