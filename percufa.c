@@ -233,7 +233,6 @@ int   percola(int *red,int n){      // Devuelve 0 si no percolo y la etiqueta de
   }
   for(i=0;i<n;i++){
 	e =red[n*(n-1)+i]; // Guardo la etiqueta en una variable auxiliar para facilitar el manejo
-<<<<<<< HEAD
   	if (e>0 && e<n && etiquetas[e]){ // Me fijo si la etiqueta esta en rango y luego si esa
   		res = e;		                   // ya aparecio en la 1° fila. Si lo hizo, la devuelvo.
   		break;		// Como ya encontre coincidencia, termino el ciclo (¡con toda violencia!)
@@ -414,8 +413,8 @@ float* masa_percolante(int* red, int n, float* p, int m, int It){
         cantperc++;                   // cantidad de percolaciones para promediar luego
         //printf("%d\n", cantperc);
       }
-      j++;
-      if (j>10*m && cantperc*m<j){ // Una vez que hubo "suficientes iteraciones"
+      j++; 
+      if (j>m*m && cantperc*m<j){ // Una vez que hubo "suficientes iteraciones" (ver abajo, de aca sale que It>m^2) 
         res[i] = 0;     // cantperc/j<1/m (proporcion de percolaciones < resolucion de probas)
         break;
       }
@@ -428,6 +427,10 @@ float* masa_percolante(int* red, int n, float* p, int m, int It){
   }
   return res;
 }
+// Usando chebyshev, la proba de que el promedio tomado sobre N mediciones esté a mas de 1/m del valor real
+// (y, por lo tanto, que sea distinguible) es   P(|p-p(N)|>1/m) < (s*m)^2/N
+// Si tomamos N>m^2 => P(|p-p(N)|>1/m) < s^2 con s^2 = p(1-p)  (varianza de la Bernoulli)
+// Por lo tanto, si p es muy chico, s^2= p-p^2 =~ p y por lo tanto la chance de que sean distinguibles es baja
 
 
 float* mediana_bisec(int* n, int m, int It, int pres){
