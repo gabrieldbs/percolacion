@@ -14,14 +14,15 @@ void  corregir_etiqueta(int *red,int *clase,int n);
 int   percola(int *red,int n);
 void  print_red(int* red, int n_fil, int n_col);
 int etiqueta_verdadera(int *clase, int s);
-int* numeros_cluster(int n, int *clase, int* n_max);
+int* numeros_cluster(int n, int *clase);
 void pc_promedio(int* red, int n, int P, float* p, float* var, int It);
 float* masa_percolante(int* red, int n, float* p, int m, int It);
-float* masa_percolante2(int* red, int n, float pmin, int m, int It);
+float* masa_percolante2(int* red, int n, int m, int It);
 float* mediana_bisec(int* n, int m, int It, int pres);
 float* histograma(int* red,int n,int m, int It);
 float percentil(float* F, int m, float alfa);
-
+float chi(float* x,float* y,int m);
+float* ns_promedio(int* red, int n, float p, int It);
 
 int main(int argc,char *argv[])   // Por ahora no hay argumentos por linea
 {
@@ -123,46 +124,33 @@ int main(int argc,char *argv[])   // Por ahora no hay argumentos por linea
     free(secs);
     free(pcs);
 
-/*
-// Ejercicio 2, version masa_percolante2 
-// Toma los argumentos por consola como el problema 2 de abajo, pero luego del vector de n toma un vector de pmin de la misma 
-// longitud que n (son las pmin de cada tamaño de red, obtenidas de los datos del ejercicio 1.b)
-    int *red,*n, i,j,m,It,*secs,secsTot;
-    float *Fp, *pmin;
-    sscanf(argv[1], "%d", &m); // Cantidad de probas
-    sscanf(argv[2], "%d", &It); // Cantidad de iteraciones
-    n = (int *) malloc(argc*sizeof(int));
-    pmin = (float *) malloc(m*sizeof(float));
-    secs = (int *) malloc((argc-3)*sizeof(int));
-    red = (int *) malloc((argc-3)*(argc-3)*sizeof(int));
-    FILE *fp = fopen("Ejercicio_2_v2.txt","a");  // Escribo los resultados en un archivo
-    fprintf(fp, "Simulacion con %d probabilidades (salto de %f) y %d iteraciones en cada una\n", m,1.0/m, It);
-    fprintf(fp, "Los resultados son: \n");
-    secsTot = time(NULL);
-    for(i=0;i<(argc-3)/2;i++){  // Tomo el vector de dimensiones
-      sscanf(argv[i+3], "%d", &n[i]);
-      sscanf(argv[2*i+3], "%f", &pmin[i]);
-      red = (int *) realloc(red, n[i]*n[i]*sizeof(int));
-      secs[i] = time(NULL);
-      Fp = masa_percolante2(red, n[i],pmin[i], m, It);
-      secs[i] = time(NULL)-secs[i];
-      printf("%d terminado \n", n[i]);
-      fprintf(fp, "%dx%d en %dhs, %dmin, %dsegs\n", n[i],n[i],secs[i]/3600,secs[i]/60 % 60,secs[i] % 60);
-      for(j=0;j<m;j++){
-        fprintf(fp, "%f ", Fp[j]);
-      }
-      fprintf(fp, "\n");
-      free(Fp);
+
+// Ejercicio 1.d)
+// Toma por consola la proba minima, la proba maxima, cantidad de probas, la cantidad de iteraciones y el vector de dimensiones
+    float *probas, pc,pmin,pmax, ns;
+    int i, *n, m,It, *red;
+    sscanf(argv[1], "%f", &pmin);
+    sscanf(argv[2], "%f", &pmax);
+    sscanf(argv[3], "%d", &m);
+    sscanf(argv[4], "%d", &It);
+    n = (int *) malloc((argc-5)*sizeof(int));
+    probas = (float *) malloc(m*sizeof(float));
+    red = (int *) malloc(size(int));
+    for(i=0;i<m;i++){
+      probas[i] = pmin+i*(pmax-pmin)/m;
     }
-    secsTot = time(NULL)-secsTot;int mins = secsTot/60;int horas = mins/60;
-    fprintf(fp, "Duracion total: %d horas, %d minutos y %d segundos\n", horas, mins % 60, secsTot % 60);
-    fprintf(fp, "\n");
-    fclose(fp);
-    free(red);
-    free(n);
-    free(secs);
-    free(pmin);
-*/
+    for(i=0;i<argc-5;i++){
+      sscanf(argv[i+5],"%d", &n[i]);
+      red = (int *) realloc(red, n[i]*n[i]*sizeof(int));
+      for(j=0;j<m;j++){
+        ns = ns_promedio(red,n[i],p[j],It);
+        ajuste >> a y b
+        calcule chi >>
+        borro ns
+        me quedo con chi y tau
+      }
+    }
+
 
 /*
 // Ejercicio 2: Masa percolante
@@ -456,16 +444,11 @@ void print_red(int* red, int n_fil, int n_col){
  /*
  Para el  punto dos
  */
-int* numeros_cluster(int n, int *clase, int* n_max){  // La funcion recibe como argumento un puntero a n_max cuya contenido no importa, sino que solo
-  int i ,j;                                           // es un contenedor para que al final de la función tendrá el tamaño del máximo cluster        
-  int* res;                                           // Si no hicieramos esto, ¿como sabriamos la longitud de res fuera de la funcion?
-  for(i=2;i<n*n;i++){   // Buscamos el valor de n_max, correspondiente
-    if(clase[i]>*n_max){ // al tamaño del cluster mas grande
-      *n_max=clase[i];
-    }
-  }
-res=(int *)malloc((*n_max)*sizeof(int)); // Creamos el resultado; un vector cuya i-esima posicion es la cantidad de clusters de tamaño i
-  for(i=0;i<*n_max;i++){       // Lo inicializamos en 0
+int* numeros_cluster(int n, int *clase){ 
+  int i ,j;      
+  int* res;
+  res=(int *)malloc(n*n*sizeof(int)); // Creamos el resultado; un vector cuya i-esima posicion es la cantidad de clusters de tamaño i
+  for(i=0;i<n*n;i++){       // Lo inicializamos en 0
     res[i]=0;
   }
   for (j=2;j<n*n;j++){  // Cada etiqueta (verdadera) i que nos crucemos tiene un tamaño clase[i], por lo que debemos sumar 1 a res[clase[i]]
@@ -558,34 +541,24 @@ float* masa_percolante(int* red, int n, float* p, int m, int It){
 // Si tomamos N>m^2 => P(|p-p(N)|>1/m) < s^2 con s^2 = p(1-p)  (varianza de la Bernoulli)
 // Por lo tanto, si p es muy chico, s^2= p-p^2 =~ p y por lo tanto la chance de que sean distinguibles es baja
 
-float* masa_percolante2(int* red, int n, float pmin, int m, int It){
+float* masa_percolante2(int* red, int n, int m, int It){
   int i,j,perc, cantperc, *clase;
   float *res, p,step;
-  p = pmin;
   res=(float *)malloc(m*sizeof(float));
-  j = 1;
-  while(j<pmin*m){      // Seteo los valores de las probas menores a pmin en 0
-    res[j]=0; 
-    j++;
-  }
-  for(i=j;i<m;i++){   // Una vez que superé el pmin, calculo el resto normalmente
+  for(i=0;i<m;i++){   // Una vez que superé el pmin, calculo el resto normalmente
     p = j*1.0/m;
     res[i] = 0;
     cantperc=0;
     j=0;
-    while(cantperc<It){                   // Es importante que todos los p[i] tengan la misma
+    for(j=0;j<It;j++){                   // Es importante que todos los p[i] tengan la misma
       clase = hoshenVec(red,n,p);  // la misma cantidad de puntos para el promedio
       perc = percola(red,n);              // OJO que p[i]=0 da ciclo infinito!
       if (perc>0){
-        res[i] = res[i]+clase[perc];  // Sumo la masa del cluster percolante actual y la
-        cantperc++;                   // cantidad de percolaciones para promediar luego
+        res[i] = res[i]+clase[perc]; 
       }
-      j++; 
       free(clase);
     }
-    if (cantperc!=0){
-      res[i] = res[i]/(float)cantperc;   // Divido para obtener el promedio
-    }
+    res[i] = res[i]*1.0/It;
   }
   return res;
 }
@@ -625,22 +598,43 @@ float* mediana_bisec(int* n, int m, int It, int pres){
   return res;
 }
 
+float chi(float* x,float* y,int m){
+  int i;
+  float res=0;
+  for(i=0;i<m;i++){
+      res=res + (y[i]-x[i])*(y[i]-x[i]);
+    }
+    return res;
+  }
+
+
+float* ns_promedio(int* red, int n, float p, int It){
+  srand((unsigned) time(NULL));
+  float *res;
+  int *clase;
+  int i,j, *clusters;
+  res = (float *) malloc(n*n*sizeof(float));   // El tamaño de res esta definido por el tamaño de la red
+  for(j=0;j<n*n;j++){
+    res[j] = 0;  // Inicializo el vector en 0
+  }
+  for(i=0;i<It;i++){
+    clase = hoshenVec(red,n,p);
+    clusters = numeros_cluster(n,clase);
+    free(clase);
+    for(j=0;j<n*n;j++){
+      res[j] = res[j]+clusters[j];  // Le voy sumando los clusters de tamaño j a medida que los veo
+    }
+    free(clusters);
+  }
+  for(j=0;j<n*n;j++){
+    res[j] = res[j]*1.0/It;   // Divido por It y obtengo el promedio
+  }  
+  return res;
+}
+
 
 /* Acá abajo pongo una lista de funciones (con declaracion tentativa) que faltaría hacer. Agreguemos a medida que se nos ocurran.
 
-float* histograma(int* red, int* n, float* probas, int* m, int It)  
-Dado un vector de probas (longitud m) y una red de nxn, se fija para cada probas[i] si percola It veces, poniendo en resultado[i] el porcentaje de veces que percolo
-
-float mediana(float* probas, float* F, int n)
-Busca el indice j cuyo F[j] es más cercano a 1/2 y devuelve el valor probas[j] (n es la longitud de los vectores)
-
-float mediana_bisec(int* red, int* n, int m, int It, int pres)
-Esta es la mia: 
-Dada una red de nxn, arranca en p=1/2 y obtiene F(p) viendo el porcentaje de percolaciones de It iteraciones. En la (i+1)-esima iteracion, si el F(p) en la i-esima
-es menor a 1/2, entonces vuelve a hacerlo con p = p+1/2^i; sino lo hace con p = p-1/2^i. El proceso termina cuando i<pres (pues tengo precision de 1/2^pres).
-
-float* masa_percolante(int* red, int n, float* p, int m, int It)
-Mediante It iteraciones, obtiene la masa media M para una red de nxn en funcion de los p[i].
 
 float* dimension_fractal(int* red, int* N, float* pc, int m,int It)
 Mediante It iteraciones, obtiene un vector de masas medias M cuyo M[i] es la masa media para una red de N[i]xN[i] y proba critica pc[i] (los 3 arrays de longitud m)
