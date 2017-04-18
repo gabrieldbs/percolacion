@@ -85,11 +85,11 @@ int main(int argc,char *argv[])   // Por ahora no hay argumentos por linea
      free(meds);
      free(n);
      */
-
+/*
 // Ejercicio 1.b) entero
 // Toma los argumentos por consola como el problema 1.a) pero con cantidad de probas en lugar de presicion
     int *n, i,j, *red, m, It, *secs, secsTot;
-    float *F, *pcs,*pmin;
+    float *F, *pcs;
     float alfa = 0.01;
     n = (int *) malloc((argc-3)*sizeof(int));
     pcs = (float *) malloc((argc-3)*sizeof(float));
@@ -123,19 +123,19 @@ int main(int argc,char *argv[])   // Por ahora no hay argumentos por linea
     free(red);
     free(secs);
     free(pcs);
-
+*/
 
 // Ejercicio 1.d)
 // Toma por consola la proba minima, la proba maxima, cantidad de probas, la cantidad de iteraciones y el vector de dimensiones
-    float *probas, pc,pmin,pmax, ns;
-    int i, *n, m,It, *red;
+    float *probas, pc,pmin,pmax, *ns;
+    int i,j, *n, m,It, *red;
     sscanf(argv[1], "%f", &pmin);
     sscanf(argv[2], "%f", &pmax);
     sscanf(argv[3], "%d", &m);
     sscanf(argv[4], "%d", &It);
     n = (int *) malloc((argc-5)*sizeof(int));
     probas = (float *) malloc(m*sizeof(float));
-    red = (int *) malloc(size(int));
+    red = (int *) malloc(sizeof(int));
     for(i=0;i<m;i++){
       probas[i] = pmin+i*(pmax-pmin)/m;
     }
@@ -143,11 +143,11 @@ int main(int argc,char *argv[])   // Por ahora no hay argumentos por linea
       sscanf(argv[i+5],"%d", &n[i]);
       red = (int *) realloc(red, n[i]*n[i]*sizeof(int));
       for(j=0;j<m;j++){
-        ns = ns_promedio(red,n[i],p[j],It);
+        ns = ns_promedio(red,n[i],probas[j],It);/*
         ajuste >> a y b
         calcule chi >>
         borro ns
-        me quedo con chi y tau
+        me quedo con chi y tau*/
       }
     }
 
@@ -629,6 +629,30 @@ float* ns_promedio(int* red, int n, float p, int It){
   for(j=0;j<n*n;j++){
     res[j] = res[j]*1.0/It;   // Divido por It y obtengo el promedio
   }  
+  return res;
+}
+
+float Ajuste_Lineal(float* x, float* y, int n, float* m, float* b){
+  float sumaxy, sumay,sumax, sumaxx, res, *Yaj;
+  int i;
+  sumaxy = 0;
+  sumay = 0;
+  sumax = 0;
+  sumaxx = 0;
+  for(i=0;i<n;i++){
+    sumax = sumax+x[i];
+    sumaxy = sumaxy+x[i]*y[i];
+    sumay = sumay+y[i];
+    sumaxx = sumaxx+x[i]*x[i];
+  }
+  *m = (sumaxy-sumax*sumay)/(sumaxx-sumax*sumax/n);  // Calculo la pendiente y
+  *b = (sumay-(*m)*sumax)/n;                        // ordenada del ajuste
+  Yaj = (float *) malloc(n*sizeof(float));
+  for(i=0;i<n;i++){
+    Yaj[i] = (*m)*x[i]+(*b);   // Obtengo el vector de f(x) del ajuste
+  }
+  res = chi(y,Yaj,n);  // Calculo el error cuadratico entre los puntos y el ajuste 
+  free(Yaj);          // y lo devuelvo
   return res;
 }
 
