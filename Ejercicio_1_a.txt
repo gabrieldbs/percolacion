@@ -1,9 +1,21 @@
-Simulacion con presicion 1/2^10 y 30000 iteraciones por red
-Duracion: 0 horas, 22 minutos y 4 segundos
+Simulacion con presicion 1/2^16 y 300000 iteraciones por red
+Duracion: 1 horas, 12 minutos y 27 segundos
 Los resultados son: 
-4x4: 0.489026 0.000221  en 0hs, 0min, 1segs
-16x16: 0.578479 0.000871  en 0hs, 0min, 16segs
-32x32: 0.590767 0.000651  en 0hs, 1min, 1segs
-64x64: 0.594236 0.000294  en 0hs, 4min, 9segs
-128x128: 0.592372 0.000079  en 0hs, 16min, 37segs
+4x4: 0.501905 0.002189  en 0hs, 0min, 2segs
+16x16: 0.583897 0.002726  en 0hs, 0min, 49segs
+32x32: 0.592431 0.000723  en 0hs, 3min, 24segs
+64x64: 0.591891 0.000293  en 0hs, 13min, 35segs
+128x128: 0.592123 0.000220  en 0hs, 54min, 37segs
+
+Simulacion con presicion 1/2^16 y 50000 iteraciones por red
+Duracion: 0 horas, 12 minutos y 44 segundos
+Los resultados son: 
+4x4: 0.529900 0.000442  en 0hs, 0min, 0segs
+16x16: 0.625945 0.000677  en 0hs, 0min, 10segs
+32x32: 0.596994 0.000947  en 0hs, 0min, 36segs
+64x64: 0.592229 0.000291  en 0hs, 2min, 25segs
+128x128: 0.593269 0.000053  en 0hs, 9min, 33segs
+
+
+
 
