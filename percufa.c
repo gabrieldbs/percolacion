@@ -16,12 +16,14 @@ void  print_red(int* red, int n_fil, int n_col);
 int etiqueta_verdadera(int *clase, int s);
 int* numeros_cluster(int n, int *clase);
 void pc_promedio(int* red, int n, int P, float* p, float* var, int It);
-float* masa_percolante(int* red, int n, int m, int It);
+float* intensidad(int* red, int n, int m, int It);
 float* mediana_bisec(int* n, int m, int It, int pres);
 float* histograma(int* red,int n,int m, int It);
 float percentil(float* F, int m, float alfa);
 float chi(float* x,float* y,int m);
+float Ajuste_Lineal(float* x, float* y, int n, float* m, float* b);
 float* ns_promedio(int* red, int n, float p, int It);
+float dimension_fractal(int* red, int N, float pc, int It);
 
 int main(int argc,char *argv[])   // Por ahora no hay argumentos por linea
 {
@@ -162,8 +164,8 @@ int main(int argc,char *argv[])   // Por ahora no hay argumentos por linea
   }
 
   if(Programa == 2){
-// Ejercicio 2: Masa percolante
-// La cantidad de probas a tomar entre pmin y 1, la cantidad de iteraciones y el vector de 
+// Ejercicio 2: Intensidad del cluster percolante
+// La cantidad de probas a tomar entre 0 y 1, la cantidad de iteraciones y el vector de 
 // dimensiones se toman, en orden, directo de la consola al correr el programa
     printf("Ejecutando simulacion ejercicio 2\n");
     int *red,*n, i,j,m,It,*secs,secsTot;
@@ -180,7 +182,7 @@ int main(int argc,char *argv[])   // Por ahora no hay argumentos por linea
       sscanf(argv[i], "%d", &n[i-4]);
       red = (int *) realloc(red,n[i-4]*n[i-4]*sizeof(int));
       secs[i-4] = time(NULL);
-      float* Fp = masa_percolante(red, n[i-4],m, It);
+      float* Fp = intensidad(red, n[i-4],m, It);
       secs[i-4] = time(NULL)-secs[i-4];
       printf("%d terminado \n", n[i-4]);
       fprintf(fp, "%dx%d en %dhs, %dmin, %dsegs\n", n[i-4],n[i-4],secs[i-4]/3600,secs[i-4]/60 % 60,secs[i-4] % 60);
@@ -197,6 +199,54 @@ int main(int argc,char *argv[])   // Por ahora no hay argumentos por linea
     free(red);
     free(n);
     free(secs);
+  }
+
+  if(Programa == 3){
+// Ejercicio 2: Dimension fractal
+// La cantidad de iteraciones, el vector de dimensiones  y el vector de pc
+// se toman, en orden, directo de la consola al correr el programa
+    printf("Ejecutando simulacion ejercicio 3\n");
+    int *red,*n, i,It,*secs,secsTot,len = (argc-3)/2;
+    float *probas, *masas, m, b, chi, *logL;
+    sscanf(argv[2], "%d", &It); // Cantidad de iteraciones
+    n = (int *) malloc(len*sizeof(int));
+    masas = (float *) malloc(len*sizeof(float));
+    logL = (float *) malloc(len*sizeof(float));
+    probas = (float *) malloc(len*sizeof(float));
+    secs = (int *) malloc(len*sizeof(int));
+    red = (int *) malloc(sizeof(int));
+    FILE *fp = fopen("Ejercicio_3.txt","a");  // Escribo los resultados en un archivo
+    fprintf(fp, "Simulacion con %d iteraciones en cada una por red \n", It);
+    fprintf(fp, "Los resultados son: \n");
+    secsTot = time(NULL);
+    for(i=0;i<len;i++){  // Tomo el vector de dimensiones y probas
+      sscanf(argv[i+3], "%d", &n[i]);
+      sscanf(argv[i+3+len], "%f", &probas[i]);
+      red = (int *) realloc(red,n[i]*n[i]*sizeof(int));
+      secs[i] = time(NULL);
+      masas[i] = dimension_fractal(red,n[i],probas[i], It);
+      secs[i] = time(NULL)-secs[i];
+      printf("%d terminado \n", n[i]);
+      fprintf(fp, "%dx%d con pc=%f -> M = %f \nDuracion: %dhs, %dmin, %dsegs\n", n[i],n[i],probas[i],masas[i],secs[i]/3600,secs[i]/60 % 60,secs[i] % 60);
+    }
+    secsTot = time(NULL)-secsTot;int mins = secsTot/60;int horas = mins/60;
+    fprintf(fp, "El vector M(L) es:");
+    for(i=0;i<len;i++){
+      fprintf(fp, "%f ", masas[i]);
+      masas[i]  = log(masas[i]/(n[i]*n[i]));
+      logL[i]  = log((float) n[i]);
+    }
+    chi = Ajuste_Lineal(logL,masas,len,&m,&b);
+    fprintf(fp, "\nPara un Chi^2 = %f, el ajuste arroja un D = %f\n", chi, 2+m);
+    fprintf(fp, "Duracion total: %d horas, %d minutos y %d segundos\n", horas, mins % 60, secsTot % 60);
+    fprintf(fp, "\n");
+    fclose(fp);
+    free(red);
+    free(n);
+    free(probas);
+    free(masas);
+    free(secs);
+    free(logL);
   }
 
 
@@ -511,7 +561,7 @@ float percentil(float* F, int m, float alfa){ // Dado un array F y su longitud m
 // Ejercicio 2
 
 
-float* masa_percolante(int* red, int n, int m, int It){
+float* intensidad(int* red, int n, int m, int It){
   int i,j,perc, *clase;
   float *res, p;
   res=(float *)malloc(m*sizeof(float));
@@ -613,7 +663,7 @@ float Ajuste_Lineal(float* x, float* y, int n, float* m, float* b){
     sumay = sumay+y[i];
     sumaxx = sumaxx+x[i]*x[i];
   }
-  *m = (sumaxy-sumax*sumay)/(sumaxx-sumax*sumax/n);  // Calculo la pendiente y
+  *m = (sumaxy-sumax*sumay/n)/(sumaxx-sumax*sumax/n);  // Calculo la pendiente 
   *b = (sumay-(*m)*sumax)/n;                        // ordenada del ajuste
   Yaj = (float *) malloc(n*sizeof(float));
   for(i=0;i<n;i++){
@@ -625,12 +675,29 @@ float Ajuste_Lineal(float* x, float* y, int n, float* m, float* b){
 }
 
 
+// Ejercicio 3
+
+float dimension_fractal(int* red, int N, float pc, int It){
+  float res;
+  int i=0,perc,*clase;
+  srand((unsigned) time(NULL));
+  while(i<It){
+    clase = hoshenVec(red,N,pc);
+    perc = percola(red,N);
+    if(perc>0){ // Me aseguro que haya percolado, sino lo repito
+      i++;
+      res = res+clase[perc]; // Sumo la masa del cluster percolante
+    }
+    free(clase);
+  }
+  res = res/It; 
+  return res;
+}
+
+
 /* Acá abajo pongo una lista de funciones (con declaracion tentativa) que faltaría hacer. Agreguemos a medida que se nos ocurran.
 
 
-float* dimension_fractal(int* red, int* N, float* pc, int m,int It)
-Mediante It iteraciones, obtiene un vector de masas medias M cuyo M[i] es la masa media para una red de N[i]xN[i] y proba critica pc[i] (los 3 arrays de longitud m)
-Basicamente, aplicar la funcion masa_percolante pero para cada una de los m tamaños de redes.
 
 
 */

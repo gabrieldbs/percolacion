@@ -1,0 +1,32 @@
+Simulacion con 5000 iteraciones en cada una por red 
+Los resultados son: 
+20x20 con pc=0.580000 -> M = 156.814194 
+Duracion: 0hs, 0min, 0segs
+30x30 con pc=0.590000 -> M = 349.150604 
+Duracion: 0hs, 0min, 1segs
+40x40 con pc=0.590000 -> M = 587.982422 
+Duracion: 0hs, 0min, 1segs
+50x50 con pc=0.590000 -> M = 888.668213 
+Duracion: 0hs, 0min, 1segs
+60x60 con pc=0.590000 -> M = 1245.869995 
+Duracion: 0hs, 0min, 2segs
+70x70 con pc=0.590000 -> M = 1648.736572 
+Duracion: 0hs, 0min, 3segs
+80x80 con pc=0.590000 -> M = 2108.722656 
+Duracion: 0hs, 0min, 3segs
+90x90 con pc=0.590000 -> M = 2630.451660 
+Duracion: 0hs, 0min, 5segs
+100x100 con pc=0.590000 -> M = 3171.992432 
+Duracion: 0hs, 0min, 5segs
+120x120 con pc=0.590000 -> M = 4449.499023 
+Duracion: 0hs, 0min, 8segs
+150x150 con pc=0.590000 -> M = 6717.345703 
+Duracion: 0hs, 0min, 12segs
+200x200 con pc=0.590000 -> M = 11391.916992 
+Duracion: 0hs, 0min, 26segs
+250x250 con pc=0.590000 -> M = 17100.333984 
+Duracion: 0hs, 0min, 39segs
+El vector M(L) es:156.814194 349.150604 587.982422 888.668213 1245.869995 1648.736572 2108.722656 2630.451660 3171.992432 4449.499023 6717.345703 11391.916992 17100.333984 
+Para un Chi^2 = 0.001782, el ajuste arroja un D = 1.848875
+Duracion total: 0 horas, 1 minutos y 46 segundos
+
