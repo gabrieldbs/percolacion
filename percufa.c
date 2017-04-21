@@ -24,6 +24,7 @@ double chi(double* x,double* y,int m);
 double Ajuste_Lineal(double* x, double* y, int n, double* m, double* b);
 double* ns_promedio(int* red, int n, float p, int It);
 double dimension_fractal(int* red, int N, float pc, int It);
+double* scaling(float* probas, int m, int S, float pc, int It);
 
 int main(int argc,char *argv[])   // Por ahora no hay argumentos por linea
 {    
@@ -119,10 +120,10 @@ int main(int argc,char *argv[])   // Por ahora no hay argumentos por linea
       pcs[i-4] = percentil(F,m,0.5); // Esta operacion deberia tomar un tiempo ~log2(m) y por lo tanto lo que tarda es despreciable frente a histograma
       secs[i-4] = time(NULL)-secs[i-4];
       fprintf(fp, "%dx%d con pc = %g  (en %dhs, %dmin, %dsegs) \n", n[i-4],n[i-4],pcs[i-4],secs[i-4]/3600,secs[i-4]/60 % 60,secs[i-4] % 60);
-      for(j=0;j<m;j++){
-        fprintf(fp, "%g ", F[j]);
+      for(j=0;j<m-1;j++){
+        fprintf(fp, "%g, ", F[j]);
       }
-      fprintf(fp, "\n");
+      fprintf(fp, "%g\n",F[m-1]);
       free(F);
     }
     secsTot = time(NULL)-secsTot;int mins = secsTot/60;int horas = mins/60;
@@ -139,7 +140,7 @@ int main(int argc,char *argv[])   // Por ahora no hay argumentos por linea
     printf("Ejecutando simulacion ejercicio 1.d)\n");
     float *probas, pmin,pmax;
     double *ns,a,b;
-    int i,j, *n, m,It, *red,;
+    int i,j, *n, m,It, *red;
     sscanf(argv[1], "%f", &pmin);
     sscanf(argv[2], "%f", &pmax);
     sscanf(argv[3], "%d", &m);
@@ -198,10 +199,10 @@ int main(int argc,char *argv[])   // Por ahora no hay argumentos por linea
       secs[i-4] = time(NULL)-secs[i-4];
       printf("%d terminado \n", n[i-4]);
       fprintf(fp, "%dx%d en %dhs, %dmin, %dsegs\n", n[i-4],n[i-4],secs[i-4]/3600,secs[i-4]/60 % 60,secs[i-4] % 60);
-      for(j=0;j<m;j++){
-        fprintf(fp, "%g ", Fp[j]);
+      for(j=0;j<m-1;j++){
+        fprintf(fp, "%g, ", Fp[j]);
       }
-      fprintf(fp, "\n");
+      fprintf(fp, "%g\n",F[m-1]);
       free(Fp);
     }
     secsTot = time(NULL)-secsTot;int mins = secsTot/60;int horas = mins/60;
@@ -214,7 +215,7 @@ int main(int argc,char *argv[])   // Por ahora no hay argumentos por linea
   }
 
   if(Programa == 3){
-// Ejercicio 2: Dimension fractal
+// Ejercicio 3: Dimension fractal
 // La cantidad de iteraciones, el vector de dimensiones  y el vector de pc
 // se toman, en orden, directo de la consola al correr el programa
     printf("Ejecutando simulacion ejercicio 3\n");
@@ -244,13 +245,16 @@ int main(int argc,char *argv[])   // Por ahora no hay argumentos por linea
     }
     secsTot = time(NULL)-secsTot;int mins = secsTot/60;int horas = mins/60;
     fprintf(fp, "El vector M(L) es:");
-    for(i=0;i<len;i++){
-      fprintf(fp, "%g ", masas[i]);
+    for(i=0;i<len-1;i++){
+      fprintf(fp, "%g, ", masas[i]);
       masas[i]  = log(masas[i]/(n[i]*n[i]));
       logL[i]  = log((double) n[i]);
     }
+    fprintf(fp, "%g\n", masas[len-1]);
+    masas[i]  = log(masas[i]/(n[len-1]*n[len-1]));
+    logL[i]  = log((double) n[len-1]);
     chi = Ajuste_Lineal(logL,masas,len,&m,&b);
-    fprintf(fp, "\nPara un Chi^2 = %g, el ajuste arroja un D = %g\n", chi, 2+m);
+    fprintf(fp, "Para un Chi^2 = %g, el ajuste arroja un D = %g\n", chi, 2+m);
     fprintf(fp, "Duracion total: %d horas, %d minutos y %d segundos\n", horas, mins % 60, secsTot % 60);
     fprintf(fp, "\n");
     fclose(fp);
@@ -262,7 +266,50 @@ int main(int argc,char *argv[])   // Por ahora no hay argumentos por linea
     free(logL);
   }
 
-
+  if(Programa == 4){  // Testie un poco y esto requiere It>3000 para ser algo distinto a ruido
+    // La funcion se hace 0 para p<0.28 y p>0.79 para pc=0.59, asi que un rango [0.25; 0.8]
+// Ejercicio 4: Scaling
+// Toma el pmin, el pmax, la cantidad de puntos, la cantidad de iteraciones,
+// la probabilidad critica de L= 64 y un vector de tamaños de cluster 
+    printf("Ejecutando simulacion ejercicio 4\n");
+    int *S, i,j,It,m,*secs,secsTot,len = argc-7;
+    float *probas, pc, pmin, pmax; 
+    sscanf(argv[2], "%f", &pmin); // Proba minima
+    sscanf(argv[3], "%f", &pmax); // Proba maxima
+    sscanf(argv[4], "%d", &m); // Cantidad de probas
+    sscanf(argv[5], "%d", &It); // Cantidad de iteraciones
+    sscanf(argv[6], "%f", &pc); // Cantidad de iteraciones
+    S = (int *) malloc(len*sizeof(int));
+    probas = (float *) malloc(m*sizeof(float));
+    secs = (int *) malloc(len*sizeof(int));
+    for(i=0;i<m;i++){
+      probas[i] = pmin+i*(pmax-pmin)/(m-1);
+    }
+    FILE *fp = fopen("Ejercicio_4.txt","a");  // Escribo los resultados en un archivo
+    fprintf(fp, "Simulacion con %d probas entre %f y %f, tomando pc = %f y %d iteraciones en cada una por cada tamaño de cluster \n", m, pmin, pmax,pc, It);
+    fprintf(fp, "Los resultados son: \n");
+    secsTot = time(NULL);
+    for(i=0;i<len;i++){  // Tomo el vector de dimensiones y probas
+      sscanf(argv[i+7], "%d", &S[i]);
+      secs[i] = time(NULL);
+      double* Fz = scaling(probas, m, S[i], pc, It);
+      secs[i] = time(NULL)-secs[i];
+      printf("Clusters de tamaño %d terminado \n", S[i]);
+      fprintf(fp, "Clusters de tamaño %d (en %dhs, %dmin, %dsegs)\n", S[i], secs[i]/3600,secs[i]/60 % 60,secs[i] % 60);
+      for(j=0;j<m-1;j++){
+        fprintf(fp, "%g, ", Fz[j]);
+      }
+      fprintf(fp, "%g\n", Fz[m-1]);
+      free(Fz);
+    }
+    secsTot = time(NULL)-secsTot;int mins = secsTot/60;int horas = mins/60;
+    fprintf(fp, "Duracion total: %d horas, %d minutos y %d segundos\n", horas, mins % 60, secsTot % 60);
+    fprintf(fp, "\n");
+    fclose(fp);
+    free(probas);
+    free(secs);
+    free(S);
+  }
 
 
   return 0;
@@ -653,10 +700,7 @@ double* ns_promedio(int* red, int n, float p, int It){
       res[j] = res[j]+(double)clusters[j]/(double) It;  // Le voy sumando los clusters de tamaño j a medida que los veo
     }
     free(clusters);
-  }
-  for(j=0;j<n*n;j++){
-    res[j] = res[j];   // Divido por It y obtengo el promedio
-  }  
+  } 
   return res;
 }
 
@@ -704,23 +748,18 @@ double dimension_fractal(int* red, int N, float pc, int It){
 
 // Ejercicio 4
 
- double* scaling(float proba, float pc, float tau, int It){  // Solo voy a mirar los 41<=s<=492 (ver ej 4)
-  double *res, sigma = 2.5278;    // Asumo que sigma = 1/vD = 2.5278
-  double q0 = 1;   // Si encuentro una forma de calcular esto, lo hago. Sino lo absorbo en f(z)
-  int len = 452, i,k,*clase;
-  int* res = (int *) malloc(len*sizeof(int));
-  int* red = (int *) malloc(64*64*sizeof(int));
-  int* ns;
-  for(i=0;i<len;i++){
-    res[i] = 0;
-  }
-  for(i=0;i<It;i++){
-    clase = hoshenVec(red,64,proba);
-    ns = numeros_cluster(64,clase);
-    free(clase);
-    for(k=0;j<len;k++){
-      res[k] = res[k]+(double)ns[k+41]/(double)It;
-    }
+ double* scaling(float* probas, int m, int S, float pc, int It){ // Dado un 41<=S<=492, obtiene f(z)=ns(p)/ns(pc)
+  double *res;    // Asumo que L = 64
+  int i,j; 
+  res = (double *) malloc(m*sizeof(double));
+  int* red = (int *) malloc(64*64*sizeof(int)); // Creo la red sobre la cual voy a simular
+  double* ns;
+  ns = ns_promedio(red,64,pc,It); // Obtengo el ns(pc) que voy
+  double nspc = ns[S];            // a usar para "normalizar"
+  free(ns);
+  for(j=0;j<m;j++){
+    ns = ns_promedio(red, 64, probas[j], It); // Calculo el ns(probas[j])
+    res[j] = ns[S]/nspc;          // y lo normalizo por ns(pc)
     free(ns);
   }
   free(red);
