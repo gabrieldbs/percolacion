@@ -15,15 +15,15 @@ int   percola(int *red,int n);
 void  print_red(int* red, int n_fil, int n_col);
 int etiqueta_verdadera(int *clase, int s);
 int* numeros_cluster(int n, int *clase);
-void pc_promedio(int* red, int n, int P, float* p, float* var, int It);
-float* intensidad(int* red, int n, int m, int It);
+void pc_promedio(int* red, int n, int P, double* p, double* var, int It);
+double* intensidad(int* red, int n, int m, int It);
 float* mediana_bisec(int* n, int m, int It, int pres);
-float* histograma(int* red,int n,int m, int It);
-float percentil(float* F, int m, float alfa);
-float chi(float* x,float* y,int m);
-float Ajuste_Lineal(float* x, float* y, int n, float* m, float* b);
-float* ns_promedio(int* red, int n, float p, int It);
-float dimension_fractal(int* red, int N, float pc, int It);
+double* histograma(int* red,int n,int m, int It);
+double percentil(double* F, int m, float alfa);
+double chi(double* x,double* y,int m);
+double Ajuste_Lineal(double* x, double* y, int n, double* m, double* b);
+double* ns_promedio(int* red, int n, float p, int It);
+double dimension_fractal(int* red, int N, float pc, int It);
 
 int main(int argc,char *argv[])   // Por ahora no hay argumentos por linea
 {
@@ -44,10 +44,10 @@ int main(int argc,char *argv[])   // Por ahora no hay argumentos por linea
   if(Programa == 26){
     printf("Ejecutando simulacion ejercicio 1.a)\n");
     int *red,*n, i,pres,It,*secs,secsTot;
-    float *pcs, *vars;
+    double *pcs, *vars;
     n = (int *) malloc(argc*sizeof(int));
-    pcs = (float *) malloc((argc-4)*sizeof(float));
-    vars = (float *) malloc((argc-4)*sizeof(float));
+    pcs = (double *) malloc((argc-4)*sizeof(double));
+    vars = (double *) malloc((argc-4)*sizeof(double));
     secs = (int *) malloc((argc-4)*sizeof(int));
     red = (int *) malloc((argc-4)*(argc-4)*sizeof(int));
     sscanf(argv[2], "%d", &pres); // Precision 1/2^pres
@@ -67,7 +67,7 @@ int main(int argc,char *argv[])   // Por ahora no hay argumentos por linea
     fprintf(fp, "Duracion: %d horas, %d minutos y %d segundos\n", horas, mins % 60, secsTot % 60);
     fprintf(fp, "Los resultados son: \n");
     for(i=0;i<argc-4;i++){
-      fprintf(fp, "%dx%d: %f %f  en %dhs, %dmin, %dsegs\n", n[i],n[i],pcs[i],vars[i],secs[i]/3600,secs[i]/60 % 60,secs[i] % 60);
+      fprintf(fp, "%dx%d: %g %g  en %dhs, %dmin, %dsegs\n", n[i],n[i],pcs[i],vars[i],secs[i]/3600,secs[i]/60 % 60,secs[i] % 60);
     }
     fprintf(fp, "\n");
     fclose(fp);
@@ -99,9 +99,9 @@ int main(int argc,char *argv[])   // Por ahora no hay argumentos por linea
 // Toma los argumentos por consola como el problema 1.a) pero con cantidad de probas en lugar de presicion
     printf("Ejecutando simulacion ejercicio 1.b)\n");
     int *n, i,j, *red, m, It, *secs, secsTot;
-    float *F, *pcs;
+    double *F, *pcs;
     n = (int *) malloc((argc-4)*sizeof(int));
-    pcs = (float *) malloc((argc-4)*sizeof(float));
+    pcs = (double *) malloc((argc-4)*sizeof(double));
     red = (int *) malloc(sizeof(int));
     sscanf(argv[2], "%d", &m); // Cantidad de probas en el histograma
     sscanf(argv[3], "%d", &It); // Cantidad de iteraciones
@@ -118,9 +118,9 @@ int main(int argc,char *argv[])   // Por ahora no hay argumentos por linea
       F = histograma(red, n[i-4], m, It);
       pcs[i-4] = percentil(F,m,0.5); // Esta operacion deberia tomar un tiempo ~log2(m) y por lo tanto lo que tarda es despreciable frente a histograma
       secs[i-4] = time(NULL)-secs[i-4];
-      fprintf(fp, "%dx%d con pc = %f  (en %dhs, %dmin, %dsegs) \n", n[i-4],n[i-4],pcs[i-4],secs[i-4]/3600,secs[i-4]/60 % 60,secs[i-4] % 60);
+      fprintf(fp, "%dx%d con pc = %g  (en %dhs, %dmin, %dsegs) \n", n[i-4],n[i-4],pcs[i-4],secs[i-4]/3600,secs[i-4]/60 % 60,secs[i-4] % 60);
       for(j=0;j<m;j++){
-        fprintf(fp, "%f ", F[j]);
+        fprintf(fp, "%g ", F[j]);
       }
       fprintf(fp, "\n");
       free(F);
@@ -137,7 +137,8 @@ int main(int argc,char *argv[])   // Por ahora no hay argumentos por linea
 // Ejercicio 1.d)
 // Toma por consola la proba minima, la proba maxima, cantidad de probas, la cantidad de iteraciones y el vector de dimensiones
     printf("Ejecutando simulacion ejercicio 1.d)\n");
-    float *probas, pmin,pmax, *ns;
+    float *probas, pmin,pmax;
+    double *ns;
     int i,j, *n, m,It, *red;
     sscanf(argv[1], "%f", &pmin);
     sscanf(argv[2], "%f", &pmax);
@@ -182,12 +183,12 @@ int main(int argc,char *argv[])   // Por ahora no hay argumentos por linea
       sscanf(argv[i], "%d", &n[i-4]);
       red = (int *) realloc(red,n[i-4]*n[i-4]*sizeof(int));
       secs[i-4] = time(NULL);
-      float* Fp = intensidad(red, n[i-4],m, It);
+      double* Fp = intensidad(red, n[i-4],m, It);
       secs[i-4] = time(NULL)-secs[i-4];
       printf("%d terminado \n", n[i-4]);
       fprintf(fp, "%dx%d en %dhs, %dmin, %dsegs\n", n[i-4],n[i-4],secs[i-4]/3600,secs[i-4]/60 % 60,secs[i-4] % 60);
       for(j=0;j<m;j++){
-        fprintf(fp, "%f ", Fp[j]);
+        fprintf(fp, "%g ", Fp[j]);
       }
       fprintf(fp, "\n");
       free(Fp);
@@ -207,11 +208,12 @@ int main(int argc,char *argv[])   // Por ahora no hay argumentos por linea
 // se toman, en orden, directo de la consola al correr el programa
     printf("Ejecutando simulacion ejercicio 3\n");
     int *red,*n, i,It,*secs,secsTot,len = (argc-3)/2;
-    float *probas, *masas, m, b, chi, *logL;
+    float *probas; 
+    double *masas, m, b, chi, *logL;
     sscanf(argv[2], "%d", &It); // Cantidad de iteraciones
     n = (int *) malloc(len*sizeof(int));
-    masas = (float *) malloc(len*sizeof(float));
-    logL = (float *) malloc(len*sizeof(float));
+    masas = (double *) malloc(len*sizeof(double));
+    logL = (double *) malloc(len*sizeof(double));
     probas = (float *) malloc(len*sizeof(float));
     secs = (int *) malloc(len*sizeof(int));
     red = (int *) malloc(sizeof(int));
@@ -227,17 +229,17 @@ int main(int argc,char *argv[])   // Por ahora no hay argumentos por linea
       masas[i] = dimension_fractal(red,n[i],probas[i], It);
       secs[i] = time(NULL)-secs[i];
       printf("%d terminado \n", n[i]);
-      fprintf(fp, "%dx%d con pc=%f -> M = %f \nDuracion: %dhs, %dmin, %dsegs\n", n[i],n[i],probas[i],masas[i],secs[i]/3600,secs[i]/60 % 60,secs[i] % 60);
+      fprintf(fp, "%dx%d con pc=%f -> M = %g \nDuracion: %dhs, %dmin, %dsegs\n", n[i],n[i],probas[i],masas[i],secs[i]/3600,secs[i]/60 % 60,secs[i] % 60);
     }
     secsTot = time(NULL)-secsTot;int mins = secsTot/60;int horas = mins/60;
     fprintf(fp, "El vector M(L) es:");
     for(i=0;i<len;i++){
-      fprintf(fp, "%f ", masas[i]);
+      fprintf(fp, "%g ", masas[i]);
       masas[i]  = log(masas[i]/(n[i]*n[i]));
-      logL[i]  = log((float) n[i]);
+      logL[i]  = log((double) n[i]);
     }
     chi = Ajuste_Lineal(logL,masas,len,&m,&b);
-    fprintf(fp, "\nPara un Chi^2 = %f, el ajuste arroja un D = %f\n", chi, 2+m);
+    fprintf(fp, "\nPara un Chi^2 = %g, el ajuste arroja un D = %g\n", chi, 2+m);
     fprintf(fp, "Duracion total: %d horas, %d minutos y %d segundos\n", horas, mins % 60, secsTot % 60);
     fprintf(fp, "\n");
     fclose(fp);
@@ -259,10 +261,10 @@ int main(int argc,char *argv[])   // Por ahora no hay argumentos por linea
 
 
 // 1.a)
-void pc_promedio(int* red, int n, int P, float* p, float* var, int It){   // Cuando queremos que algo nos devuelva 2+ variables, un buen truco es crearlas fuera de la funcion 
+void pc_promedio(int* red, int n, int P, double* p, double* var, int It){   // Cuando queremos que algo nos devuelva 2+ variables, un buen truco es crearlas fuera de la funcion 
 // (con cualquier valor) y pasarle a la funcion punteros a esa variables, cosa que la funcion se encargue de poner en esa direccion de memoria el valor correcto
 // Si no te gusta, tranquilamente podemos devolver un array de 2 posiciones, pero personalmente preferiria utilizar la menor cantidad de memoria dinamica posible.
-  float prob, step;
+  double prob, step;
   int *clase;
   int k,l;
   *p = 0;
@@ -283,11 +285,10 @@ void pc_promedio(int* red, int n, int P, float* p, float* var, int It){   // Cua
       step = .5*step; // Actualizo el tamaño del paso
     }
 
-    *p = *p+prob;           // Voy sumando los prob para obtener el prob promedio luego
-    *var = *var+prob*prob;  // Voy sumando los prob^2 para obtener la varianza luego
+    *p = *p+prob/(double)It;           // Voy sumando los prob para obtener el prob promedio luego
+    *var = *var+prob*prob/(double) It;  // Voy sumando los prob^2 para obtener la varianza luego
   }
-  *p = *p/It;           // Divido para obtener el promedio
-  *var = *var/It-(*p)*(*p);   // Divido para obtener el promedio de los prob^2 y le resto el promedio al cuadrado -> Varianza!
+  *var = *var-(*p)*(*p);   // Divido para obtener el promedio de los prob^2 y le resto el promedio al cuadrado -> Varianza!
 }
 
 
@@ -515,14 +516,14 @@ int* numeros_cluster(int n, int *clase){
 
 // Ejercicio 1.b)
 
-float* histograma(int* red,int n,int m, int It){
+double* histograma(int* red,int n,int m, int It){
   int i,j;
   float p;
-  float *res;
+  double *res;
   int *clase;
   // probas=(float *)malloc(m*sizeof(float));       // aca la idea es armar un vector de m lugares por eso use el malloc para cada una de las probabilidades
   // Dado que las probas no son argumento de entrada ni de salida, crear este vector no tendría mucha utilidad. En todo caso, podemos reconstruirlo conociendo m
-  res = (float *) malloc(m*sizeof(float)); // Como cantperco era un múltiplo de res, me ahorro crear ese vector y lo laburo todo sobre res.
+  res = (double *) malloc(m*sizeof(double)); // Como cantperco era un múltiplo de res, me ahorro crear ese vector y lo laburo todo sobre res.
   for (j=0;j<m;j++){             // primero  hago un for para las probabilidades
     p=(j+1.0)/m; // Me aseguro de tener p=1 y no p=0
     if(j==m/2){printf("Por la mitad\n");}
@@ -535,12 +536,12 @@ float* histograma(int* red,int n,int m, int It){
       }
     //probas[j]=p;    // aca mi idea es que tire el vector de probas
     }
-    res[j]=cperco*1.0/It;  // aca la idea seria que tire el vector con  la  cantidad de percola para cada casillero --- Me ahorre el siguiente for dividiendo in-situ     
+    res[j]=(double)cperco/(double)It;  // aca la idea seria que tire el vector con  la  cantidad de percola para cada casillero --- Me ahorre el siguiente for dividiendo in-situ     
   }
   return res;
 }
 
-float percentil(float* F, int m, float alfa){ // Dado un array F y su longitud m, busca el indice i tal que F[i]=alfa
+double percentil(double* F, int m, float alfa){ // Dado un array F y su longitud m, busca el indice i tal que F[i]=alfa
   int inf, sup, med; // A lo largo del ciclo, se que el indice que busco (i) esta entre inf y sup (inf<=i<=sup)
   inf = 0;
   sup = m-1;
@@ -561,10 +562,10 @@ float percentil(float* F, int m, float alfa){ // Dado un array F y su longitud m
 // Ejercicio 2
 
 
-float* intensidad(int* red, int n, int m, int It){
+double* intensidad(int* red, int n, int m, int It){
   int i,j,perc, *clase;
-  float *res, p;
-  res=(float *)malloc(m*sizeof(float));
+  double *res, p;
+  res=(double *)malloc(m*sizeof(double));
   for(i=0;i<m;i++){   // Una vez que superé el pmin, calculo el resto normalmente
     p = (i+1)*1.0/m;
     res[i] = 0;
@@ -572,11 +573,11 @@ float* intensidad(int* red, int n, int m, int It){
       clase = hoshenVec(red,n,p);  
       perc = percola(red,n);   
       if (perc>0){
-        res[i] = res[i]+clase[perc]; 
+        res[i] = res[i]+(double)clase[perc]/(double) It; 
       }
       free(clase);
     }
-    res[i] = res[i]*1.0/It;
+    res[i] = res[i];
   }
   return res;
 }
@@ -616,9 +617,9 @@ float* mediana_bisec(int* n, int m, int It, int pres){
   return res;
 }
 
-float chi(float* x,float* y,int m){
+double chi(double* x,double* y,int m){
   int i;
-  float res=0;
+  double res=0;
   for(i=0;i<m;i++){
       res=res + (y[i]-x[i])*(y[i]-x[i]);
     }
@@ -626,12 +627,12 @@ float chi(float* x,float* y,int m){
   }
 
 
-float* ns_promedio(int* red, int n, float p, int It){
+double* ns_promedio(int* red, int n, float p, int It){
   srand((unsigned) time(NULL));
-  float *res;
+  double *res;
   int *clase;
   int i,j, *clusters;
-  res = (float *) malloc(n*n*sizeof(float));   // El tamaño de res esta definido por el tamaño de la red
+  res = (double *) malloc(n*n*sizeof(double));   // El tamaño de res esta definido por el tamaño de la red
   for(j=0;j<n*n;j++){
     res[j] = 0;  // Inicializo el vector en 0
   }
@@ -640,18 +641,18 @@ float* ns_promedio(int* red, int n, float p, int It){
     clusters = numeros_cluster(n,clase);
     free(clase);
     for(j=0;j<n*n;j++){
-      res[j] = res[j]+clusters[j];  // Le voy sumando los clusters de tamaño j a medida que los veo
+      res[j] = res[j]+(double)clusters[j]/(double) It;  // Le voy sumando los clusters de tamaño j a medida que los veo
     }
     free(clusters);
   }
   for(j=0;j<n*n;j++){
-    res[j] = res[j]*1.0/It;   // Divido por It y obtengo el promedio
+    res[j] = res[j];   // Divido por It y obtengo el promedio
   }  
   return res;
 }
 
-float Ajuste_Lineal(float* x, float* y, int n, float* m, float* b){
-  float sumaxy, sumay,sumax, sumaxx, res, *Yaj;
+double Ajuste_Lineal(double* x, double* y, int n, double* m, double* b){
+  double sumaxy, sumay,sumax, sumaxx, res, *Yaj;
   int i;
   sumaxy = 0;
   sumay = 0;
@@ -663,9 +664,9 @@ float Ajuste_Lineal(float* x, float* y, int n, float* m, float* b){
     sumay = sumay+y[i];
     sumaxx = sumaxx+x[i]*x[i];
   }
-  *m = (sumaxy-sumax*sumay/n)/(sumaxx-sumax*sumax/n);  // Calculo la pendiente 
-  *b = (sumay-(*m)*sumax)/n;                        // ordenada del ajuste
-  Yaj = (float *) malloc(n*sizeof(float));
+  *m = (sumaxy-sumax*sumay/(double)n)/(sumaxx-sumax*sumax/(double)n);  // Calculo la pendiente 
+  *b = (sumay-(*m)*sumax)/(double)n;                        // ordenada del ajuste
+  Yaj = (double *) malloc(n*sizeof(double));
   for(i=0;i<n;i++){
     Yaj[i] = (*m)*x[i]+(*b);   // Obtengo el vector de f(x) del ajuste
   }
@@ -677,8 +678,8 @@ float Ajuste_Lineal(float* x, float* y, int n, float* m, float* b){
 
 // Ejercicio 3
 
-float dimension_fractal(int* red, int N, float pc, int It){
-  float res;
+double dimension_fractal(int* red, int N, float pc, int It){
+  double res;
   int i=0,perc,*clase;
   srand((unsigned) time(NULL));
   while(i<It){
@@ -686,11 +687,10 @@ float dimension_fractal(int* red, int N, float pc, int It){
     perc = percola(red,N);
     if(perc>0){ // Me aseguro que haya percolado, sino lo repito
       i++;
-      res = res+clase[perc]; // Sumo la masa del cluster percolante
+      res = res+(double)clase[perc]/(double) It; // Sumo la masa del cluster percolante
     }
     free(clase);
   }
-  res = res/It; 
   return res;
 }
 
