@@ -26,7 +26,7 @@ double* ns_promedio(int* red, int n, float p, int It);
 double dimension_fractal(int* red, int N, float pc, int It);
 
 int main(int argc,char *argv[])   // Por ahora no hay argumentos por linea
-{
+{    srand((unsigned)time(NULL));
 
   /* Dejo esto para acordarme como tomar argumentos por linea
   if (argc==3) 
@@ -138,8 +138,8 @@ int main(int argc,char *argv[])   // Por ahora no hay argumentos por linea
 // Toma por consola la proba minima, la proba maxima, cantidad de probas, la cantidad de iteraciones y el vector de dimensiones
     printf("Ejecutando simulacion ejercicio 1.d)\n");
     float *probas, pmin,pmax;
-    double *ns;
-    int i,j, *n, m,It, *red;
+    double *ns,a,b;
+    int i,j, *n, m,It, *red,;
     sscanf(argv[1], "%f", &pmin);
     sscanf(argv[2], "%f", &pmax);
     sscanf(argv[3], "%d", &m);
@@ -153,12 +153,23 @@ int main(int argc,char *argv[])   // Por ahora no hay argumentos por linea
     for(i=0;i<argc-5;i++){
       sscanf(argv[i+5],"%d", &n[i]);
       red = (int *) realloc(red, n[i]*n[i]*sizeof(int));
+      //x = (double *) malloc(m*sizeof(double));
+      //y = (double *) malloc(m*sizeof(double));
       for(j=0;j<m;j++){
         ns = ns_promedio(red,n[i],probas[j],It);
+       /*for (i=0;i<m;i++){
+          x=log(double(i+1));
+          y=log((double)ns[i+1]);
+        }
+        Ajuste_Lineal(x,y,m,&a,&b);
+        chi_(x,y,m);
         /*ajuste >> a y b
+    
         calcule chi >>
-        borro ns
+       
         me quedo con chi y tau*/
+    
+     
         free(ns);
       }
     }
@@ -270,7 +281,6 @@ void pc_promedio(int* red, int n, int P, double* p, double* var, int It){   // C
   *p = 0;
   *var = 0;
   for(k=0;k<It;k++){   // Itero It veces
-    srand((unsigned)time(NULL));
     step=.25;          // Tamaño del paso inicial
     prob = 0.5;       // Probabilidad inicial
     for (l = 0; l<P; l++){
