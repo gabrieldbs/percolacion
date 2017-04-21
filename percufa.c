@@ -27,7 +27,6 @@ double dimension_fractal(int* red, int N, float pc, int It);
 
 int main(int argc,char *argv[])   // Por ahora no hay argumentos por linea
 {
-
   /* Dejo esto para acordarme como tomar argumentos por linea
   if (argc==3) 
      {
@@ -270,7 +269,6 @@ void pc_promedio(int* red, int n, int P, double* p, double* var, int It){   // C
   *p = 0;
   *var = 0;
   for(k=0;k<It;k++){   // Itero It veces
-    srand((unsigned)time(NULL));
     step=.25;          // Tamaño del paso inicial
     prob = 0.5;       // Probabilidad inicial
     for (l = 0; l<P; l++){
@@ -628,7 +626,6 @@ double chi(double* x,double* y,int m){
 
 
 double* ns_promedio(int* red, int n, float p, int It){
-  srand((unsigned) time(NULL));
   double *res;
   int *clase;
   int i,j, *clusters;
@@ -681,7 +678,6 @@ double Ajuste_Lineal(double* x, double* y, int n, double* m, double* b){
 double dimension_fractal(int* red, int N, float pc, int It){
   double res;
   int i=0,perc,*clase;
-  srand((unsigned) time(NULL));
   while(i<It){
     clase = hoshenVec(red,N,pc);
     perc = percola(red,N);
@@ -693,6 +689,31 @@ double dimension_fractal(int* red, int N, float pc, int It){
   }
   return res;
 }
+
+// Ejercicio 4
+
+ double* scaling(float proba, float pc, float tau, int It){  // Solo voy a mirar los 41<=s<=492 (ver ej 4)
+  double *res, sigma = 2.5278;    // Asumo que sigma = 1/vD = 2.5278
+  double q0 = 1;   // Si encuentro una forma de calcular esto, lo hago. Sino lo absorbo en f(z)
+  int len = 452, i,k,*clase;
+  int* res = (int *) malloc(len*sizeof(int));
+  int* red = (int *) malloc(64*64*sizeof(int));
+  int* ns;
+  for(i=0;i<len;i++){
+    res[i] = 0;
+  }
+  for(i=0;i<It;i++){
+    clase = hoshenVec(red,64,proba);
+    ns = numeros_cluster(64,clase);
+    free(clase);
+    for(k=0;j<len;k++){
+      res[k] = res[k]+(double)ns[k+41]/(double)It;
+    }
+    free(ns);
+  }
+  free(red);
+  return res;
+ }
 
 
 /* Acá abajo pongo una lista de funciones (con declaracion tentativa) que faltaría hacer. Agreguemos a medida que se nos ocurran.
