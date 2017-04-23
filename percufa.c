@@ -202,7 +202,7 @@ int main(int argc,char *argv[])   // Por ahora no hay argumentos por linea
       for(j=0;j<m-1;j++){
         fprintf(fp, "%g, ", Fp[j]);
       }
-      fprintf(fp, "%g\n",F[m-1]);
+      fprintf(fp, "%g\n",Fp[m-1]);
       free(Fp);
     }
     secsTot = time(NULL)-secsTot;int mins = secsTot/60;int horas = mins/60;
