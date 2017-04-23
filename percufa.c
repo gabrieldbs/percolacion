@@ -134,13 +134,64 @@ int main(int argc,char *argv[])   // Por ahora no hay argumentos por linea
     free(secs);
     free(pcs);
   }
-  if(Programa == 29){
+
+//Ejercicio 1.c)
+//Toma por consola lo mismo que el ejercicio 1 
+prinf("Ejecutando simulacion ejercicio 1.c\n" );
+FILE* fp = fopen("Ejercicio_1_c.txt","c");
+    fprintf(fp, "Ajuste del Pc en funcion de sigma del Ejercicio 1a y a su vez el parametro nu\n");
+    fprintf(fp, "Los resultados son: \n");
+    int *red,*n, i,pres,It,l,*a=0,*,aa=0,*b=0,*bb=0;
+    double *pcs, *vars,*sigma,aj,c,j,L,bj,cc,nu;
+    n = (int *) malloc(argc*sizeof(int));
+    pcs = (double *) malloc((argc-4)*sizeof(double));
+    vars = (double *) malloc((argc-4)*sizeof(double));
+    red = (int *) malloc((argc-4)*(argc-4)*sizeof(int));
+    sscanf(argv[2], "%d", &pres); // Precision 1/2^pres
+    sscanf(argv[3], "%d", &It); // Cantidad de iteraciones
+    for(i=4;i<argc;i++){  // Tomo el vector de dimensiones
+      sscanf(argv[i], "%d", &n[i-4]);
+      red = (int *) realloc(red, n[i-4]*n[i-4]*sizeof(int));
+      pc_promedio(red,n[i-4],pres, pcs+i-4, vars+i-4, It);		//hasta aca lo copie del 1 le saque lo de los segundos no se porque ajja
+      }
+    for (l=4;l<argc;l++){ // aca quiero  hacer la raiz cuadrada de los sigma tengo un problema con la dimension,
+	sigma[l]=sqrt(vars[l]); // poruqe depende de la cantidad de redes  que le de,no se si lo que hice hace eso
+	} 
+    aj=Ajuste_Lineal(pcs,sigma,argc-4,a,b); 	//aca hago el ajuste
+    c=chi(pcs,sigma,argc-4);	//aca hago el chi
+    fprintf(fp, "El ajuste lineal es  y= %dx+%d, con un ajuste de chi = %d",a,b,c); //quiero que en los resultado me de el ajuste
+    fprintf(fp,"El Pc de una red infinito es %d", b); // y el pc infinito 
+    for(i=4;i<argc;i++){	//ahora busco el parametro nu 
+       j[i]=log(pcs[i]-b);
+    	L[i]=log(n[i]);
+       }
+    bj=Ajuste_Lineal(j,L,argc,aa=0,bb=0);
+    cc=chi(j,L,m);
+    nu=-1/a;
+    fprintf (fp, "El parametro nu es %d ",nu);
+    fprintf(fp, "\n");
+    fclose(fp),
+    free(pcs);
+    free(L)
+    free(j)
+    free(sigma);
+    fclose(fp);
+    free(pcs);
+    free(vars);
+    free(red);
+    free(n);
+  }
+
+if(Programa == 29){
 // Ejercicio 1.d)
 // Toma por consola la proba minima, la proba maxima, cantidad de probas, la cantidad de iteraciones y el vector de dimensiones
     printf("Ejecutando simulacion ejercicio 1.d)\n");
     float *probas, pmin,pmax;
     double *ns,a,b;
     int i,j, *n, m,It, *red;
+  //  FILE* fp = fopen("Ejercicio_1_b.txt","a");
+  //fprintf(fp, "Simulacion con probabilidad minima %d, probabilidad maxima %d,cantidad de probabilidades, iteraciones por red\n",pmin, pmax, m, It);
+  //  fprintf(fp, "Los resultados son: \n");
     sscanf(argv[1], "%f", &pmin);
     sscanf(argv[2], "%f", &pmax);
     sscanf(argv[3], "%d", &m);
@@ -170,7 +221,7 @@ int main(int argc,char *argv[])   // Por ahora no hay argumentos por linea
        
         me quedo con chi y tau*/
     
-     
+   //  fprintf (fp, "El chi es %d,el valor de tau es %d", chi , tau);
         free(ns);
       }
     }
