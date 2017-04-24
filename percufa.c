@@ -138,12 +138,12 @@ int main(int argc,char *argv[])   // Por ahora no hay argumentos por linea
 //Ejercicio 1.c)
 //Toma por consola lo mismo que el ejercicio 1 
 if (Programa ==28){
-prinf("Ejecutando simulacion ejercicio 1c)\n");
+printf("Ejecutando simulacion ejercicio 1c)\n");
 FILE* fp = fopen("Ejercicio_1_c.txt","c");
     fprintf(fp, "Ajuste del Pc en funcion de sigma del Ejercicio 1a y a su vez el parametro nu\n");
     fprintf(fp, "Los resultados son: \n");
     int *red,*n, i,pres,It,l;
-    double *pcs, *vars,*sigma,aj,c,*j,*L,bj,cc,*nu,*a=0,*aa=0,*b=0,*bb=0;
+    double *pcs, *vars,*sigma,aj,c,*j,*L,bj,cc,*nu,*a,*aa=0,*b,*bb=0;
     n = (int *) malloc(argc*sizeof(int));
     pcs = (double *) malloc((argc-4)*sizeof(double));
     vars = (double *) malloc((argc-4)*sizeof(double));
@@ -163,16 +163,16 @@ FILE* fp = fopen("Ejercicio_1_c.txt","c");
 	} 
     aj=Ajuste_Lineal(pcs,sigma,argc-4,a,b); 	//aca hago el ajuste
     c=chi(pcs,sigma,argc-4);	//aca hago el chi
-    fprintf(fp, "El ajuste lineal es  y= %dx+%d, con un ajuste de chi = %d",a,b,c); //quiero que en los resultado me de el ajuste
-    fprintf(fp,"El Pc de una red infinito es %d", b); // y el pc infinito 
+    fprintf(fp, "El ajuste lineal es  y= %gx+%g, con un ajuste de chi = %g",*a,*b,c); //quiero que en los resultado me de el ajuste
+    fprintf(fp,"El Pc de una red infinito es %g", *b); // y el pc infinito 
     for(i=4;i<argc;i++){	//ahora busco el parametro nu 
-       j[i]=log((double) pcs[i]-b);
+       j[i]=log((double) pcs[i]-*b);
     	L[i]=log( (double) n[i]);
        }
-    bj=Ajuste_Lineal(j,L,argc,aa=0,bb=0);
+    bj=Ajuste_Lineal(j,L,argc,aa,bb);
     cc=chi(j,L,argc);
-    nu=-1./((double)a);
-    fprintf (fp, "El parametro nu es %d ",nu);
+    *nu=(-(double)1/((double) *aa));
+    fprintf (fp, "El parametro nu es %g ", *nu);
     fprintf(fp, "\n");
     fclose(fp),
     free(pcs);
