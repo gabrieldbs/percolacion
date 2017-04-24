@@ -101,7 +101,7 @@ int main(int argc,char *argv[])   // Por ahora no hay argumentos por linea
     printf("Ejecutando simulacion ejercicio 1.b)\n");
     int *n, i,j, *red, m, It, *secs, secsTot;
     double *F, *pcs;
-    n = (int *) malloc((argc-4)*sizeof(int));
+    n = (int *) malloc((argc)*sizeof(int));
     pcs = (double *) malloc((argc-4)*sizeof(double));
     red = (int *) malloc(sizeof(int));
     sscanf(argv[2], "%d", &m); // Cantidad de probas en el histograma
@@ -139,17 +139,18 @@ int main(int argc,char *argv[])   // Por ahora no hay argumentos por linea
 //Toma por consola lo mismo que el ejercicio 1 
 if (Programa ==28){
 printf("Ejecutando simulacion ejercicio 1c)\n");
-FILE* fp = fopen("Ejercicio_1_c.txt","c");
+FILE* fp = fopen("Ejercicio_1_c.txt","a");
     fprintf(fp, "Ajuste del Pc en funcion de sigma del Ejercicio 1a y a su vez el parametro nu\n");
     fprintf(fp, "Los resultados son: \n");
     int *red,*n, i,pres,It,l;
     double *pcs, *vars,*sigma,aj,c,*j,*L,bj,cc,*nu,*a,*aa=0,*b,*bb=0;
-    n = (int *) malloc(argc*sizeof(int));
+    n = (int *) malloc((argc)*sizeof(int));
     pcs = (double *) malloc((argc-4)*sizeof(double));
     vars = (double *) malloc((argc-4)*sizeof(double));
     j = (double *) malloc((argc-4)*sizeof(double));
     L = (double *) malloc((argc-4)*sizeof(double));
     sigma = (double *) malloc((argc-4)*sizeof(double));
+
     red = (int *) malloc((argc-4)*(argc-4)*sizeof(int));
     sscanf(argv[2], "%d", &pres); // Precision 1/2^pres
     sscanf(argv[3], "%d", &It); // Cantidad de iteraciones
@@ -157,10 +158,14 @@ FILE* fp = fopen("Ejercicio_1_c.txt","c");
       sscanf(argv[i], "%d", &n[i-4]);
       red = (int *) realloc(red, n[i-4]*n[i-4]*sizeof(int));
       pc_promedio(red,n[i-4],pres, pcs+i-4, vars+i-4, It);		//hasta aca lo copie del 1 le saque lo de los segundos no se porque ajja
-      }
+      printf("Red de %dx%d terminado\n", n[i-4], n[i-4]);
+      printf("aca estoy\n");
+	}
+	printf("tienes idea lo loco que suena esto");
     for (l=4;l<argc;l++){ // aca quiero  hacer la raiz cuadrada de los sigma tengo un problema con la dimension,
-	sigma[l]=sqrt((double)vars[l]); // poruqe depende de la cantidad de redes  que le de,no se si lo que hice hace eso
-	} 
+	sigma[l]=sqrt((double)vars[l-4]); // poruqe depende de la cantidad de redes  que le de,no se si lo que hice hace eso
+	}
+	printf("aca estoy"); 
     aj=Ajuste_Lineal(pcs,sigma,argc-4,a,b); 	//aca hago el ajuste
     c=chi(pcs,sigma,argc-4);	//aca hago el chi
     fprintf(fp, "El ajuste lineal es  y= %gx+%g, con un ajuste de chi = %g",*a,*b,c); //quiero que en los resultado me de el ajuste
@@ -169,8 +174,8 @@ FILE* fp = fopen("Ejercicio_1_c.txt","c");
        j[i]=log((double) pcs[i]-*b);
     	L[i]=log( (double) n[i]);
        }
-    bj=Ajuste_Lineal(j,L,argc,aa,bb);
-    cc=chi(j,L,argc);
+    bj=Ajuste_Lineal(j,L,argc-4,aa,bb);
+    cc=chi(j,L,argc-4);
     *nu=(-(double)1/((double) *aa));
     fprintf (fp, "El parametro nu es %g ", *nu);
     fprintf(fp, "\n");
