@@ -192,7 +192,7 @@ FILE* fp = fopen("Ejercicio_1_c.txt","a");
   }
 
 if(Programa == 29){
-/  if(Programa == 29){
+//  if(Programa == 29){
 // Ejercicio 1.d)
 // Toma por consola la proba minima, la proba maxima, cantidad de probas, la cantidad de iteraciones y el vector de dimensiones
     printf("Ejecutando simulacion ejercicio 1.d)\n");
@@ -235,7 +235,8 @@ if(Programa == 29){
      free(y);  
     }
   }
-}
+
+
   if(Programa == 2){
 // Ejercicio 2: Intensidad del cluster percolante
 // La proba mínima, la proba máxima, la cantidad de probas a tomar entre 0 y 1, la cantidad de iteraciones  
@@ -811,8 +812,7 @@ double dimension_fractal(int* red, int N, float pc, int It){
   return res;
 }
 
-<<<<<<< HEAD
-=======
+
 // Ejercicio 4
 
  double* scaling(float* probas, int m, int S, float pc, int It){ // Dado un 41<=S<=492, obtiene f(z)=ns(p)/ns(pc)
@@ -833,7 +833,9 @@ double dimension_fractal(int* red, int N, float pc, int It){
   return res;
  }
 
->>>>>>> fa7736a32182ce73c3d541f6ff5f48a364119523
+// Ejercicio 5
+
+double exp_sigma()
 
 /* Acá abajo pongo una lista de funciones (con declaracion tentativa) que faltaría hacer. Agreguemos a medida que se nos ocurran.
 
