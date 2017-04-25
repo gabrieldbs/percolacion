@@ -16,7 +16,7 @@ void  print_red(int* red, int n_fil, int n_col);
 int etiqueta_verdadera(int *clase, int s);
 int* numeros_cluster(int n, int *clase);
 void pc_promedio(int* red, int n, int P, double* p, double* var, int It);
-double* intensidad(int* red, int n, int m, int It);
+double* intensidad(int* red, int n, float pmin, float pmax, int m, int It);
 float* mediana_bisec(int* n, int m, int It, int pres);
 double* histograma(int* red,int n,int m, int It);
 double percentil(double* F, int m, float alfa);
@@ -238,27 +238,30 @@ if(Programa == 29){
 
   if(Programa == 2){
 // Ejercicio 2: Intensidad del cluster percolante
-// La cantidad de probas a tomar entre 0 y 1, la cantidad de iteraciones y el vector de 
-// dimensiones se toman, en orden, directo de la consola al correr el programa
+// La proba mínima, la proba máxima, la cantidad de probas a tomar entre 0 y 1, la cantidad de iteraciones  
+// y el vector de dimensiones se toman, en orden, directo de la consola al correr el programa
     printf("Ejecutando simulacion ejercicio 2\n");
     int *red,*n, i,j,m,It,*secs,secsTot;
-    sscanf(argv[2], "%d", &m); // Cantidad de probas
-    sscanf(argv[3], "%d", &It); // Cantidad de iteraciones
-    n = (int *) malloc((argc-4)*sizeof(int));
-    secs = (int *) malloc((argc-4)*sizeof(int));
+    float pmin, pmax;
+    sscanf(argv[2], "%f", &pmin); // Cantidad de probas
+    sscanf(argv[3], "%f", &pmax); // Cantidad de iteraciones
+    sscanf(argv[4], "%d", &m); // Cantidad de probas
+    sscanf(argv[5], "%d", &It); // Cantidad de iteraciones
+    n = (int *) malloc((argc-6)*sizeof(int));
+    secs = (int *) malloc((argc-6)*sizeof(int));
     red = (int *) malloc(sizeof(int));
     FILE *fp = fopen("Ejercicio_2.txt","a");  // Escribo los resultados en un archivo
-    fprintf(fp, "Simulacion con %d probabilidades (salto de %f) y %d iteraciones en cada una\n", m,1.0/m, It);
+    fprintf(fp, "Simulacion con %d probabilidades (salto de %f) entre %f y %f y %d iteraciones en cada una\n",m,1.0/(m-1),pmin,pmax,It);
     fprintf(fp, "Los resultados son: \n");
     secsTot = time(NULL);
-    for(i=4;i<argc;i++){  // Tomo el vector de dimensiones
-      sscanf(argv[i], "%d", &n[i-4]);
-      red = (int *) realloc(red,n[i-4]*n[i-4]*sizeof(int));
-      secs[i-4] = time(NULL);
-      double* Fp = intensidad(red, n[i-4],m, It);
-      secs[i-4] = time(NULL)-secs[i-4];
-      printf("%d terminado \n", n[i-4]);
-      fprintf(fp, "%dx%d en %dhs, %dmin, %dsegs\n", n[i-4],n[i-4],secs[i-4]/3600,secs[i-4]/60 % 60,secs[i-4] % 60);
+    for(i=6;i<argc;i++){  // Tomo el vector de dimensiones
+      sscanf(argv[i], "%d", &n[i-6]);
+      red = (int *) realloc(red,n[i-6]*n[i-6]*sizeof(int));
+      secs[i-6] = time(NULL);
+      double* Fp = intensidad(red, n[i-6],pmin,pmax,m, It);
+      secs[i-6] = time(NULL)-secs[i-6];
+      printf("%d terminado \n", n[i-6]);
+      fprintf(fp, "%dx%d en %dhs, %dmin, %dsegs\n", n[i-6],n[i-6],secs[i-6]/3600,secs[i-6]/60 % 60,secs[i-6] % 60);
       for(j=0;j<m-1;j++){
         fprintf(fp, "%g, ", Fp[j]);
       }
@@ -679,12 +682,12 @@ double percentil(double* F, int m, float alfa){ // Dado un array F y su longitud
 // Ejercicio 2
 
 
-double* intensidad(int* red, int n, int m, int It){
+double* intensidad(int* red, int n, float pmin, float pmax, int m, int It){
   int i,j,perc, *clase;
-  double *res, p;
+  double *res, p=pmin;
   res=(double *)malloc(m*sizeof(double));
-  for(i=0;i<m;i++){   // Una vez que superé el pmin, calculo el resto normalmente
-    p = (i+1)*1.0/m;
+  for(i=0;i<m;i++){ 
+    p = pmin+i*(pmax-pmin)/(double)(m-1);
     res[i] = 0;
     for(j=0;j<It;j++){
       clase = hoshenVec(red,n,p);  
