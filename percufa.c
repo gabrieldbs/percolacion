@@ -863,7 +863,16 @@ double dimension_fractal(int* red, int N, float pc, int It){
 
 // Ejercicio 5
 
-double exp_sigma()
+double* exp_sigma(int* S, int m, float pc, int It){ // Toma un vector S con 1<=S[i]<=15 y devuelve una tira de sigmas
+  double *res, *nspc;
+  int *red;
+  int* red = (int *) malloc(64*64*sizeof(int)); // Creo la red sobre la cual voy a simular
+  nspc = ns_promedio(red,64,pc,It);
+  res = (double *) malloc(m*sizeof(double));
+
+  free(nspc);
+  return res;
+}
 
 
 /* Acá abajo pongo una lista de funciones (con declaracion tentativa) que faltaría hacer. Agreguemos a medida que se nos ocurran.
