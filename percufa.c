@@ -143,7 +143,8 @@ FILE* fp = fopen("Ejercicio_1_c.txt","a");
     fprintf(fp, "Ajuste del Pc en funcion de sigma del Ejercicio 1a y a su vez el parametro nu\n");
     fprintf(fp, "Los resultados son: \n");
     int *red,*n, i,pres,It,l;
-    double *pcs, *vars,*sigma,aj,c,*j,*L,bj,cc,*nu,*a,*aa=0,*b,*bb=0;
+    double *pcs, *vars,*sigma,aj,c,*j,*L,bj,cc,*a;
+    a = (double *) malloc(5*sizeof(double));
     n = (int *) malloc((argc)*sizeof(int));
     pcs = (double *) malloc((argc-4)*sizeof(double));
     vars = (double *) malloc((argc-4)*sizeof(double));
@@ -159,78 +160,92 @@ FILE* fp = fopen("Ejercicio_1_c.txt","a");
       red = (int *) realloc(red, n[i-4]*n[i-4]*sizeof(int));
       pc_promedio(red,n[i-4],pres, pcs+i-4, vars+i-4, It);		//hasta aca lo copie del 1 le saque lo de los segundos no se porque ajja
       printf("Red de %dx%d terminado\n", n[i-4], n[i-4]);
-      printf("aca estoy\n");
-	}
-	printf("tienes idea lo loco que suena esto");
+      
+	  }
+   	
     for (l=4;l<argc;l++){ // aca quiero  hacer la raiz cuadrada de los sigma tengo un problema con la dimension,
-	sigma[l]=sqrt((double)vars[l-4]); // poruqe depende de la cantidad de redes  que le de,no se si lo que hice hace eso
-	}
-	printf("aca estoy"); 
-    aj=Ajuste_Lineal(pcs,sigma,argc-4,a,b); 	//aca hago el ajuste
-    c=chi(pcs,sigma,argc-4);	//aca hago el chi
-    fprintf(fp, "El ajuste lineal es  y= %gx+%g, con un ajuste de chi = %g",*a,*b,c); //quiero que en los resultado me de el ajuste
-    fprintf(fp,"El Pc de una red infinito es %g", *b); // y el pc infinito 
+	 sigma[l-4]=sqrt((double)vars[l-4]); // poruqe depende de la cantidad de redes  que le de,no se si lo que hice hace es
+   }  
+    aj=Ajuste_Lineal(sigma,pcs,argc-4,a,a+1); 	//aca hago el ajuste
+   	//aca hago el chi
+    fprintf(fp, "El ajuste lineal es  y= %gx+%g y su chi es %g  \n",*a,*(a+1),aj); //quiero que en los resultado me de el ajuste
+    fprintf(fp,"El Pc de una red infinito es %g \n", *(a+1)); // y el pc infinito 
+    
     for(i=4;i<argc;i++){	//ahora busco el parametro nu 
-       j[i]=log((double) pcs[i]-*b);
-    	L[i]=log( (double) n[i]);
+       j[i-4]=log((double) *(a+1)- pcs[i-4]);
+    	L[i-4]=log( (double) n[i-4]);
        }
-    bj=Ajuste_Lineal(j,L,argc-4,aa,bb);
-    cc=chi(j,L,argc-4);
-    *nu=(-(double)1/((double) *aa));
-    fprintf (fp, "El parametro nu es %g ", *nu);
+    bj=Ajuste_Lineal(j,L,argc-4,a+2,a+3);
+    a[4]=(-1.0/((double) *(a+2)));
+    
+    fprintf (fp, "El parametro nu es %g \n", a[4]);
     fprintf(fp, "\n");
     fclose(fp),
     free(pcs);
     free(L);
     free(j);
     free(sigma);
-    fclose(fp);
-    free(pcs);
     free(vars);
     free(red);
     free(n);
+    free(a);
   }
 
+
 if(Programa == 29){
-//  if(Programa == 29){
-// Ejercicio 1.d)
+//Ejercicio 1.d)
 // Toma por consola la proba minima, la proba maxima, cantidad de probas, la cantidad de iteraciones y el vector de dimensiones
-    printf("Ejecutando simulacion ejercicio 1.d)\n");
     float *probas, pmin,pmax, mmin;
-    double *ns,a,b,*x,*y,tau,aj;
-    int i,j,l, *n, m,It, *red,ajmin;
-    sscanf(argv[1], "%f", &pmin);
-    sscanf(argv[2], "%f", &pmax);
-    sscanf(argv[3], "%d", &m);
-    sscanf(argv[4], "%d", &It);
-    FILE* fp = fopen("Ejercicio_1_d.txt","d");
+    double *ns,a,b,*x,*y,tau,aj,ajmin;
+    int i,j,k,len,l, *n, m,It, *red ;
+    sscanf(argv[2], "%f", &pmin);
+    sscanf(argv[3], "%f", &pmax);
+    sscanf(argv[4], "%d", &m);
+    sscanf(argv[5], "%d", &It);
+      FILE* fp = fopen("Ejercicio_1_d.txt","a");
     fprintf(fp, "Simulacion con %d probabilidades y %d iteraciones por red\n", m, It);
     fprintf(fp, "Los resultados son: \n");
-    n = (int *) malloc((argc-5)*sizeof(int));
+    printf("Ejecutando simulacion ejercicio 1.d)\n");
+   
+    n = (int *) malloc((argc-6)*sizeof(int));
     probas = (float *) malloc(m*sizeof(float));
     red = (int *) malloc(sizeof(int));
     for(i=0;i<m;i++){
       probas[i] = pmin+i*(pmax-pmin)/m;
+  
     }
-    for(i=0;i<argc-5;i++){
-      sscanf(argv[i+5],"%d", &n[i]);
+
+    for(i=0;i<argc-6;i++){
+      sscanf(argv[i+6],"%d", &n[i]);
+      //printf("aca arranca\n");
       red = (int *) realloc(red, n[i]*n[i]*sizeof(int));
-      x = (double *) malloc(n[i]*n[i]*sizeof(double));
-      y = (double *) malloc(n[i]*n[i]*sizeof(double));
-      ajmin=10;
       for(j=0;j<m;j++){
         ns = ns_promedio(red,n[i],probas[j],It);
-       for (l=1;l<n[i]*n[i];l++){
-          x[l]=log((l));
-          y[l]=log(ns[l]);
+        int len = 0;
+        for (l=1;l<n[i]*n[i];l++){
+          if (ns[l]>0){len++;}
         }
-        aj=Ajuste_Lineal(x,y,m,&a,&b);
-        if (aj<ajmin){
-         mmin= m;
+        x = (double *) malloc(len*sizeof(double));
+        y = (double *) malloc(len*sizeof(double));
+        k=0;
+       for (l=1;l<n[i]*n[i];l++){
+          if(ns[l]>0){
+            x[k]=log((double)l);
+            y[k]=log((double)ns[l]);
+            k++;
+          }
+        }
+        aj=Ajuste_Lineal(x,y,len,&a,&b);
+        //printf ("aj= %g a %g b %g \n ",aj,a,b);
+        if ( j==0 || aj<ajmin){
+         mmin= a;
+         ajmin=aj;
         }
         free(ns);
       }
       tau=mmin; 
+       fprintf (fp, "El parametro tau   es %g \n", tau);
+  
      free(x);
      free(y);  
     }
@@ -375,7 +390,16 @@ if(Programa == 29){
     free(S);
   }
 
-
+/*
+if(Programa ==6){
+  // tomo pmin, pmax , m cantidad de probas , iteraciones, redes
+  Quiero que haga  lo  siguiente  calc ns 
+  con ms=ns*s*s (es la suma para todo s)  un numerico
+  le pido que lo corra para todos los p
+  graf ms en func de p 
+  ajust 
+}
+  */
   return 0;
 }
 
@@ -781,7 +805,10 @@ double Ajuste_Lineal(double* x, double* y, int n, double* m, double* b){
     sumaxy = sumaxy+x[i]*y[i];
     sumay = sumay+y[i];
     sumaxx = sumaxx+x[i]*x[i];
+    //printf("%g  %g", x[i], y[i]);
   }
+  //printf("%g\n", n*sumaxy-sumax*sumay);
+  //printf("%g\n", n*sumaxx-sumax*sumax);
   *m = (sumaxy-sumax*sumay/(double)n)/(sumaxx-sumax*sumax/(double)n);  // Calculo la pendiente 
   *b = (sumay-(*m)*sumax)/(double)n;                        // ordenada del ajuste
   Yaj = (double *) malloc(n*sizeof(double));
@@ -833,9 +860,11 @@ double dimension_fractal(int* red, int N, float pc, int It){
   return res;
  }
 
+
 // Ejercicio 5
 
 double exp_sigma()
+
 
 /* Acá abajo pongo una lista de funciones (con declaracion tentativa) que faltaría hacer. Agreguemos a medida que se nos ocurran.
 
