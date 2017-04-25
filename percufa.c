@@ -197,7 +197,7 @@ if(Programa == 29){
 // Toma por consola la proba minima, la proba maxima, cantidad de probas, la cantidad de iteraciones y el vector de dimensiones
     float *probas, pmin,pmax, mmin;
     double *ns,a,b,*x,*y,tau,aj,ajmin;
-    int i,j,l, *n, m,It, *red ;
+    int i,j,k,len,l, *n, m,It, *red ;
     sscanf(argv[2], "%f", &pmin);
     sscanf(argv[3], "%f", &pmax);
     sscanf(argv[4], "%d", &m);
@@ -217,22 +217,29 @@ if(Programa == 29){
 
     for(i=0;i<argc-6;i++){
       sscanf(argv[i+6],"%d", &n[i]);
-      printf("aca arranca\n");
+      //printf("aca arranca\n");
       red = (int *) realloc(red, n[i]*n[i]*sizeof(int));
-      x = (double *) malloc((n[i]*n[i]-1)*sizeof(double));
-      y = (double *) malloc((n[i]*n[i]-1)*sizeof(double));
       for(j=0;j<m;j++){
         ns = ns_promedio(red,n[i],probas[j],It);
-       for (l=1;l<n[i]*n[i];l++){
-          x[l-1]=log((double)l);
-          y[l-1]=log((double)ns[l]);
+        int len = 0;
+        for (l=1;l<n[i]*n[i];l++){
+          if (ns[l]>0){len++;}
         }
-        aj=Ajuste_Lineal(x,y,(n[i]*n[i]-1),&a,&b);
-        printf ("aj= %g a %g b %g \n ",aj,a,b);
+        x = (double *) malloc(len*sizeof(double));
+        y = (double *) malloc(len*sizeof(double));
+        k=0;
+       for (l=1;l<n[i]*n[i];l++){
+          if(ns[l]>0){
+            x[k]=log((double)l);
+            y[k]=log((double)ns[l]);
+            k++;
+          }
+        }
+        aj=Ajuste_Lineal(x,y,len,&a,&b);
+        //printf ("aj= %g a %g b %g \n ",aj,a,b);
         if ( j==0 || aj<ajmin){
          mmin= a;
          ajmin=aj;
-         printf("ajmin %g,\n", ajmin);
         }
         free(ns);
       }
@@ -383,7 +390,16 @@ if(Programa == 29){
     free(S);
   }
 
-
+/*
+if(Programa ==6){
+  // tomo pmin, pmax , m cantidad de probas , iteraciones, redes
+  Quiero que haga  lo  siguiente  calc ns 
+  con ms=ns*s*s (es la suma para todo s)  un numerico
+  le pido que lo corra para todos los p
+  graf ms en func de p 
+  ajust 
+}
+  */
   return 0;
 }
 
@@ -789,7 +805,10 @@ double Ajuste_Lineal(double* x, double* y, int n, double* m, double* b){
     sumaxy = sumaxy+x[i]*y[i];
     sumay = sumay+y[i];
     sumaxx = sumaxx+x[i]*x[i];
+    //printf("%g  %g", x[i], y[i]);
   }
+  //printf("%g\n", n*sumaxy-sumax*sumay);
+  //printf("%g\n", n*sumaxx-sumax*sumax);
   *m = (sumaxy-sumax*sumay/(double)n)/(sumaxx-sumax*sumax/(double)n);  // Calculo la pendiente 
   *b = (sumay-(*m)*sumax)/(double)n;                        // ordenada del ajuste
   Yaj = (double *) malloc(n*sizeof(double));
