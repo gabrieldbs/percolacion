@@ -192,19 +192,20 @@ FILE* fp = fopen("Ejercicio_1_c.txt","a");
   }
 
 if(Programa == 29){
+/  if(Programa == 29){
 // Ejercicio 1.d)
 // Toma por consola la proba minima, la proba maxima, cantidad de probas, la cantidad de iteraciones y el vector de dimensiones
     printf("Ejecutando simulacion ejercicio 1.d)\n");
-    float *probas, pmin,pmax;
-    double *ns,a,b;
-    int i,j, *n, m,It, *red;
-  //  FILE* fp = fopen("Ejercicio_1_b.txt","a");
-  //fprintf(fp, "Simulacion con probabilidad minima %d, probabilidad maxima %d,cantidad de probabilidades, iteraciones por red\n",pmin, pmax, m, It);
-  //  fprintf(fp, "Los resultados son: \n");
+    float *probas, pmin,pmax, mmin;
+    double *ns,a,b,*x,*y,tau,aj;
+    int i,j,l, *n, m,It, *red,ajmin;
     sscanf(argv[1], "%f", &pmin);
     sscanf(argv[2], "%f", &pmax);
     sscanf(argv[3], "%d", &m);
     sscanf(argv[4], "%d", &It);
+    FILE* fp = fopen("Ejercicio_1_d.txt","d");
+    fprintf(fp, "Simulacion con %d probabilidades y %d iteraciones por red\n", m, It);
+    fprintf(fp, "Los resultados son: \n");
     n = (int *) malloc((argc-5)*sizeof(int));
     probas = (float *) malloc(m*sizeof(float));
     red = (int *) malloc(sizeof(int));
@@ -214,26 +215,26 @@ if(Programa == 29){
     for(i=0;i<argc-5;i++){
       sscanf(argv[i+5],"%d", &n[i]);
       red = (int *) realloc(red, n[i]*n[i]*sizeof(int));
-      //x = (double *) malloc(m*sizeof(double));
-      //y = (double *) malloc(m*sizeof(double));
+      x = (double *) malloc(n[i]*n[i]*sizeof(double));
+      y = (double *) malloc(n[i]*n[i]*sizeof(double));
+      ajmin=10;
       for(j=0;j<m;j++){
         ns = ns_promedio(red,n[i],probas[j],It);
-       /*for (i=0;i<m;i++){
-          x=log(double(i+1));
-          y=log((double)ns[i+1]);
+       for (l=1;l<n[i]*n[i];l++){
+          x[l]=log((l));
+          y[l]=log(ns[l]);
         }
-        Ajuste_Lineal(x,y,m,&a,&b);
-        chi_(x,y,m);
-        /*ajuste >> a y b
-    
-        calcule chi >>
-       
-        me quedo con chi y tau*/
-    
-   //  fprintf (fp, "El chi es %d,el valor de tau es %d", chi , tau);
+        aj=Ajuste_Lineal(x,y,m,&a,&b);
+        if (aj<ajmin){
+         mmin= m;
+        }
         free(ns);
       }
+      tau=mmin; 
+     free(x);
+     free(y);  
     }
+  }
 }
   if(Programa == 2){
 // Ejercicio 2: Intensidad del cluster percolante
