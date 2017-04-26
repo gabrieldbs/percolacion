@@ -1,0 +1,45 @@
+Simulacion con 100 probas entre 0.1 y pc=0.591900, tomando 30000 iteraciones en cada una por cada tamaño de cluster 
+Los resultados son: 
+Clusters de tamaño 1 tienen pmax=0.204342 (en 0hs, 4min, 19segs)
+Clusters de tamaño 3 tienen pmax=0.298747 (en 0hs, 4min, 19segs)
+Clusters de tamaño 5 tienen pmax=0.348434 (en 0hs, 4min, 22segs)
+El ajuste arroja sigma = -nan y zmax=nan con un chi=nan 
+El vector de pmax es: 
+nan ,nan ,nan
+Duracion total: 0 horas, 13 minutos y 0 segundos
+
+Simulacion con 100 probas entre 0.1 y pc=0.591900, tomando 300 iteraciones en cada una por cada tamaño de cluster 
+Los resultados son: 
+Clusters de tamaño 1 tienen pmax=0.204342 (en 0hs, 0min, 3segs)
+Clusters de tamaño 3 tienen pmax=0.293779 (en 0hs, 0min, 3segs)
+Clusters de tamaño 5 tienen pmax=0.348434 (en 0hs, 0min, 3segs)
+El ajuste arroja sigma = -nan y zmax=nan con un chi=nan 
+El vector de pmax es: 
+nan ,nan ,nan
+Duracion total: 0 horas, 0 minutos y 9 segundos
+
+Simulacion con 100 probas entre 0.1 y pc=0.591900, tomando 300 iteraciones en cada una por cada tamaño de cluster 
+Los resultados son: 
+Clusters de tamaño 1 tienen pmax=0.204342 (en 0hs, 0min, 3segs)
+Clusters de tamaño 3 tienen pmax=0.293779 (en 0hs, 0min, 4segs)
+Clusters de tamaño 5 tienen pmax=0.358372 (en 0hs, 0min, 2segs)
+El ajuste arroja sigma = 0.302662 y zmax=-0.394163 con un chi=0.00444152 
+El vector de pmax es: 
+-0.947891 ,-1.21026 ,-1.45445
+Duracion total: 0 horas, 0 minutos y 9 segundos
+
+Simulacion con 100 probas entre 0.1 y pc=0.591900, tomando 300 iteraciones en cada una por cada tamaño de cluster 
+Los resultados son: 
+Clusters de tamaño 1 tienen pmax=0.204342 (en 0hs, 0min, 2segs)
+Clusters de tamaño 3 tienen pmax=0.303716 (en 0hs, 0min, 3segs)
+Clusters de tamaño 5 tienen pmax=0.338497 (en 0hs, 0min, 3segs)
+Clusters de tamaño 7 tienen pmax=0.368309 (en 0hs, 0min, 3segs)
+Clusters de tamaño 9 tienen pmax=0.398121 (en 0hs, 0min, 3segs)
+Clusters de tamaño 11 tienen pmax=0.40309 (en 0hs, 0min, 3segs)
+Clusters de tamaño 13 tienen pmax=0.437871 (en 0hs, 0min, 3segs)
+Clusters de tamaño 15 tienen pmax=0.442839 (en 0hs, 0min, 2segs)
+El ajuste arroja sigma = 0.350216 y zmax=-0.413801 con un chi=0.0310559 
+El vector de pmax es: 
+-0.947891 ,-1.24416 ,-1.37277 ,-1.49794 ,-1.64104 ,-1.66701 ,-1.87061 ,-1.9034
+Duracion total: 0 horas, 0 minutos y 22 segundos
+
