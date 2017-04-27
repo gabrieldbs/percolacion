@@ -967,6 +967,46 @@ double maximizar_cluster(int S, float m, double pc, int It){
 }
 
 
+// Ejercicio 6
+
+double* ns_promedio_sin_percolante(int* red, int n, float p, int It){
+  srand((unsigned) time(NULL));
+  double *res;
+  int *clase, etiquetas[n], etiquetasUsadas[n],e;
+  int i,j,k, *clusters;
+  res = (double *) malloc(n*n*sizeof(double));   // El tamaño de res esta definido por el tamaño de la red
+  for(j=0;j<n*n;j++){
+    res[j] = 0;  // Inicializo el vector en 0
+  }
+  for(i=0;i<It;i++){
+    clase = hoshenVec(red,n,p);
+    clusters = numeros_cluster(n,clase);
+  
+    for(k=0;k<n;k++){  // Este es el bloque donde descuento el percolante, es casi identico a percola,
+      etiquetas[k]=0;  // con la única diferencia de que sigue buscando hasta encontrar todos los percolantes
+      etiquetasUsadas[k]=0; // Acá voy a recordar que etiquetas ya conté (ver más adelante)
+    }
+    for(k=0;k<n;k++){
+      etiquetas[*(red+k)] = 1;  // pongo 1 si esa etiqueta esta en la primer fila
+    }
+    for(k=0;k<n;k++){
+      e = red[n*(n-1)+k];
+      if (e>0 && e<n && etiquetas[e] && etiquetasUsadas[e]==0){ // Me fijo si la etiqueta esta en rango y luego si esa
+        clusters[clase[e]]--;           // ya aparecio en la 1° fila y no apareció aún en la última. Si esto se cumple, 
+        etiquetasUsadas[e]=1;           // tengo que descontarla y marcarla como ya vista
+      }
+    }
+
+    for(j=0;j<n*n;j++){
+      res[j] = res[j]+(double)clusters[j]/(double) It;  // Le voy sumando los clusters de tamaño j a medida que los veo,
+    }                                                 // pero con los clusters percolantes ya descontado
+    free(clusters);
+    free(clase);
+  } 
+  return res;
+}
+
+
 /* Acá abajo pongo una lista de funciones (con declaracion tentativa) que faltaría hacer. Agreguemos a medida que se nos ocurran.
 
 
