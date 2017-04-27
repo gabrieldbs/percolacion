@@ -25,7 +25,7 @@ double Ajuste_Lineal(double* x, double* y, int n, double* m, double* b);
 double* ns_promedio(int* red, int n, float p, int It);
 double dimension_fractal(int* red, int N, float pc, int It);
 double* scaling(float* probas, int m, int S, float pc, int It);
-double maximizar_cluster(int S, float m, double pc, int It);
+double maximizar_cluster(int S, int m, double pmin, double pc, int It);
 
 int main(int argc,char *argv[])   // Por ahora no hay argumentos por linea
 {    srand((unsigned)time(NULL));
@@ -144,7 +144,7 @@ FILE* fp = fopen("Ejercicio_1_c.txt","a");
     fprintf(fp, "Ajuste del Pc en funcion de sigma del Ejercicio 1a y a su vez el parametro nu\n");
     fprintf(fp, "Los resultados son: \n");
     int *red,*n, i,pres,It,l;
-    double *pcs, *vars,*sigma,aj,c,*j,*L,bj,cc,*a;
+    double *pcs, *vars,*sigma,aj,bj,*j,*L,*a;
     a = (double *) malloc(5*sizeof(double));
     n = (int *) malloc((argc)*sizeof(int));
     pcs = (double *) malloc((argc-4)*sizeof(double));
@@ -198,7 +198,7 @@ if(Programa == 29){
 // Toma por consola la proba minima, la proba maxima, cantidad de probas, la cantidad de iteraciones y el vector de dimensiones
     float *probas, pmin,pmax, mmin;
     double *ns,a,b,*x,*y,tau,aj,ajmin;
-    int i,j,k,len,l, *n, m,It, *red ;
+    int i,j,k,l, *n, m,It, *red ;
     sscanf(argv[2], "%f", &pmin);
     sscanf(argv[3], "%f", &pmax);
     sscanf(argv[4], "%d", &m);
@@ -391,28 +391,30 @@ if(Programa == 29){
 
   if (Programa==5){
 // Ejercicio 5: Sigma
-// Toma el pc, la cantidad de probas, la cantidad de iteraciones y un vector de tamaños de clusters
+// Toma la roba minima, el pc (proba maxima, la cantidad de probas, la cantidad de iteraciones y 
+// un vector de tamaños de clusters
     printf("Ejecutando simulacion ejercicio 5\n");
-    int *S, i,It,m,*secs,secsTot,len = argc-5;
-    float pc;
+    int *S, i,It,m,*secs,secsTot,len = argc-6;
+    float pc,pmin;
     double *probas, *logprobas, *logS, sigma, zmax,chi;
-    sscanf(argv[2], "%f", &pc); // Proba critica
-    sscanf(argv[3], "%d", &m); // Cantidad de probas
-    sscanf(argv[4], "%d", &It); // Cantidad de iteraciones
+    sscanf(argv[2], "%f", &pmin); // Proba minima
+    sscanf(argv[3], "%f", &pc); // Proba critica
+    sscanf(argv[4], "%d", &m); // Cantidad de probas
+    sscanf(argv[5], "%d", &It); // Cantidad de iteraciones
     S = (int *) malloc(len*sizeof(int));
     probas = (double *) malloc(len*sizeof(double));
     logprobas = (double *) malloc(len*sizeof(double));
     logS = (double *) malloc(len*sizeof(double));
-    probas = (double *) malloc(m*sizeof(double));
+    probas = (double *) malloc(len*sizeof(double));
     secs = (int *) malloc(len*sizeof(int));
     FILE *fp = fopen("Ejercicio_5.txt","a");  // Escribo los resultados en un archivo
-    fprintf(fp, "Simulacion con %d probas entre 0.1 y pc=%f, tomando %d iteraciones en cada una por cada tamaño de cluster \n", m, pc, It);
+    fprintf(fp, "Simulacion con %d probas entre %f y pc=%f, tomando %d iteraciones en cada una por cada tamaño de cluster \n", m,pmin,pc, It);
     fprintf(fp, "Los resultados son: \n");
     secsTot = time(NULL);
     for(i=0;i<len;i++){  // Tomo el vector de dimensiones y probas
       sscanf(argv[i+5], "%d", &S[i]);
       secs[i] = time(NULL);
-      probas[i] = maximizar_cluster(S[i], m, pc, It);
+      probas[i] = maximizar_cluster(S[i], m,pmin, pc, It);
       logprobas[i] = log(pc-probas[i]);
       logS[i] = log((double) S[i]);
       secs[i] = time(NULL)-secs[i];
@@ -423,9 +425,9 @@ if(Programa == 29){
     sigma = -sigma;
     zmax = -exp(zmax);
     fprintf(fp, "El ajuste arroja sigma = %g y zmax=%g con un chi=%g \n", sigma, zmax, chi);
-    fprintf(fp, "El vector de pmax es: \n%g", logprobas[0]);
+    fprintf(fp, "El vector de pmax es: \n%g", probas[0]);
     for(i=1;i<len;i++){
-      fprintf(fp, " ,%g", logprobas[i]);
+      fprintf(fp, " ,%g", probas[i]);
     }
     secsTot = time(NULL)-secsTot;int mins = secsTot/60;int horas = mins/60;
     fprintf(fp, "\nDuracion total: %d horas, %d minutos y %d segundos\n", horas, mins % 60, secsTot % 60);
@@ -477,7 +479,7 @@ if(Programa ==6){
         free(ns);
       }
    for (i=0;i<m;i++){	
-	if(i=0 || ms[i]>msmax){
+	if(i==0 || ms[i]>msmax){
 		pmax=probas[i];
 		ms[i]=msmax;
 		}
@@ -496,7 +498,7 @@ if(Programa ==6){
 		{ p[i]=pmax-probas[i]; }	
 	}
 	//tengo un vecto con las pendientes pnd[m]  y un vector con las p[m]=|p[i]-pmax|, me falta pensar como le pido que compare correctamente
-  }*/
+  */}
  free(red);
  free(n);
  free(pnd); 
@@ -970,18 +972,25 @@ double dimension_fractal(int* red, int N, float pc, int It){
 // Ejercicio 5
 // Toma un tamaño de cluster, una cantidad de probas a tomar entre 0 y pc, el pc de 64x64 y la cantidad 
 // de iteraciones. Devuelve la proba que maximiza ns (a S fijo es equivalente a maximizar f)
-double maximizar_cluster(int S, float m, double pc, int It){
+double maximizar_cluster(int S, int m, double pmin, double pc, int It){
   double res, *ns, proba, nsmax; 
-  int *red,i;
+  int *red,i,j=0;
   red = (int *) malloc(64*64*sizeof(int)); // Creo la red sobre la cual voy a simular
   nsmax = 0;
   res=0;
-  for(i=0;i<m;i++){   // Tomo m probas entre 0.1 y pc
-    proba = 0.1+i*(pc-.1)/(m-1);
+  for(i=0;i<m;i++){   // Tomo m probas entre pmin y pc
+    proba = pmin+i*(pc-pmin)/(m-1);
     ns = ns_promedio(red,64,proba, It);
     if(ns[S]>nsmax){   // Actualizo nsmax
       nsmax = ns[S];
       res = proba;
+      j=0;
+    }else{
+      j++;
+      if(10*j>m){ // Si estuve mas del 10% de las probas sin actualizar, asumo que es 
+        free(ns);
+        break;    // el maximo y corto por lo sano
+      }
     }
     free(ns);
   }
