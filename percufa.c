@@ -442,7 +442,7 @@ if(Programa == 29){
 if(Programa ==6){
 // tomo proba minima , tomo proba maxima, tomo la cantidad de probas en las que voy   a partir, cantidad de iteraciones, y dimencion de la red
     float *probas, pmin,pmax;
-    double *ns,*ms,msj;
+    double *ns,*ms,msj ,*a ,msmax,*b,*x,*y,aj,*pnd,*p;
     int i,j,l, *n, m,It, *red ;
      sscanf(argv[2], "%f", &pmin);   // proba minima 
      sscanf(argv[3], "%f", &pmax);   //proba maxima
@@ -454,10 +454,14 @@ if(Programa ==6){
     printf("Ejecutando simulacion ejercicio 6)\n");
     n = (int *) malloc((argc-6)*sizeof(int));
     probas = (float *) malloc(m*sizeof(float));
+    x = (double *) malloc (2* sizeof(double));
+    y = (double *) malloc (2* sizeof(double));
     ms = (double *) malloc (m* sizeof(double));
+    p = (double *) malloc (m* sizeof(double));
+    pnd = (double *) malloc (m* sizeof(double));
     red = (int *) malloc(sizeof(int));
     for(i=0;i<m;i++){						//primero tomo vector de probas [m]
-      probas[i] = pmin+i*(pmax-pmin)/m;
+      probas[i] = pmin+i*(pmax-pmin)/(m-1);
 	  }
     for(i=0;i<argc-6;i++){					//aca entiendo que voy a correr las distintas	
       sscanf(argv[i+6],"%d", &n[i]);				//redes
@@ -472,12 +476,31 @@ if(Programa ==6){
         ms[j]=msj;				 // genero vector ms[j]  
         free(ns);
       }
-	// aca deberia tener una tira de  prob[j] con msj[j], 
-    }
+   for (i=0;i<m;i++){	
+	if(i=0 || ms[i]>msmax){
+		pmax=probas[i];
+		ms[i]=msmax;
+		}
+  } 
+/*
+   for (i=0;i<m;i++){
+	   x[2]={pmax,pmax-probas[i]};  //aca estoy haciendo cagadas
+	   y[2]={msmax,msmax-ms[i]};
+           aj=Ajuste_Lineal(*x,*y,2, &a, &b);
+ 	   pnd[i]=a;	 
+  	    if(pmax<probas[i]){
+	    p[i]=probas[i]-pmax;
 
+		 }
+  	    else
+		{ p[i]=pmax-probas[i]; }	
+	}
+	//tengo un vecto con las pendientes pnd[m]  y un vector con las p[m]=|p[i]-pmax|, me falta pensar como le pido que compare correctamente
+  }*/
  free(red);
  free(n);
- 
+ free(pnd); 
+ free(p);
  free(probas);
 
 }
