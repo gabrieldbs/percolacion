@@ -26,6 +26,7 @@ double* ns_promedio(int* red, int n, float p, int It);
 double dimension_fractal(int* red, int N, float pc, int It);
 double* scaling(float* probas, int m, int S, float pc, int It);
 double maximizar_cluster(int S, int m, double pmin, double pc, int It);
+double maximizar_cluster2(int S, double tau, double pmin, double pc, int It);
 
 int main(int argc,char *argv[])   // Por ahora no hay argumentos por linea
 {    srand((unsigned)time(NULL));
@@ -391,15 +392,15 @@ if(Programa == 29){
 
   if (Programa==5){
 // Ejercicio 5: Sigma
-// Toma la roba minima, el pc (proba maxima, la cantidad de probas, la cantidad de iteraciones y 
+// Toma la proba minima, el pc (proba maxima), la precision, la cantidad de iteraciones y 
 // un vector de tamaños de clusters
     printf("Ejecutando simulacion ejercicio 5\n");
     int *S, i,It,m,*secs,secsTot,len = argc-6;
-    float pc,pmin;
+    float pc,pmin,pres;
     double *probas, *logprobas, *logS, sigma, zmax,chi;
     sscanf(argv[2], "%f", &pmin); // Proba minima
     sscanf(argv[3], "%f", &pc); // Proba critica
-    sscanf(argv[4], "%d", &m); // Cantidad de probas
+    sscanf(argv[4], "%g", &pres); // Presicion
     sscanf(argv[5], "%d", &It); // Cantidad de iteraciones
     S = (int *) malloc(len*sizeof(int));
     probas = (double *) malloc(len*sizeof(double));
@@ -408,13 +409,13 @@ if(Programa == 29){
     probas = (double *) malloc(len*sizeof(double));
     secs = (int *) malloc(len*sizeof(int));
     FILE *fp = fopen("Ejercicio_5.txt","a");  // Escribo los resultados en un archivo
-    fprintf(fp, "Simulacion con %d probas entre %f y pc=%f, tomando %d iteraciones en cada una por cada tamaño de cluster \n", m,pmin,pc, It);
+    fprintf(fp, "Simulacion con probas entre %f y pc=%f, con presicion %f para el pmax y %d iteraciones por cluster \n",pmin,pc,pres, It);
     fprintf(fp, "Los resultados son: \n");
     secsTot = time(NULL);
     for(i=0;i<len;i++){  // Tomo el vector de dimensiones y probas
-      sscanf(argv[i+5], "%d", &S[i]);
+      sscanf(argv[i+6], "%d", &S[i]);
       secs[i] = time(NULL);
-      probas[i] = maximizar_cluster(S[i], m,pmin, pc, It);
+      probas[i] = maximizar_cluster2(S[i], pres,pmin, pc, It);
       logprobas[i] = log(pc-probas[i]);
       logS[i] = log((double) S[i]);
       secs[i] = time(NULL)-secs[i];
@@ -997,6 +998,46 @@ double maximizar_cluster(int S, int m, double pmin, double pc, int It){
   free(red);
   return res;
 }
+
+double maximizar_cluster2(int S, double tau, double pmin, double pc, int It){
+  double res, *ns, proba, b,c,d,fc,fd, resphi,a; 
+  int *red,i,j=0;
+  red = (int *) malloc(64*64*sizeof(int)); // Creo la red sobre la cual voy a simular
+  res=0;
+  resphi = 2-(1 + sqrt(5)) / 2;
+  a = pmin;
+  b = pc;
+  c = a + (b-a) * resphi;
+  d = b - (b-a) * resphi;
+  ns = ns_promedio(red,64,c,It);
+  fc = ns[S];
+  ns = ns_promedio(red,64,d,It);
+  fd = ns[S];
+  i = 0;
+  while (fabs(b - a) > tau){
+    if (fc > fd){
+      b = d;
+      d = c;
+      c = a + (b-a) * resphi;
+      fd = fc;
+      ns = ns_promedio(red,64,c,It);
+      fc = ns[S];
+      j++;
+    }else{
+      a = c;
+      c = d;
+      d = b - (b-a) * resphi;
+      fc = fd;
+      ns = ns_promedio(red,64,d,It);
+      fd = ns[S];
+      i++;
+    }
+  }
+  res = (a + b) / 2;
+  free(red);
+  return res;
+}
+
 
 
 // Ejercicio 6
