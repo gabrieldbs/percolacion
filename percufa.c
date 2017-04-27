@@ -474,29 +474,44 @@ if(Programa ==6){
         for(l=0;l<n[i]*n[i];l++){				 // genero ms[j]  para cada proba
           ns[l]=(ns[l]/((double)(n[i]*n[i])));			 //aca estoy normalizando     
           msj=msj+ns[l]*l*l;
-        }
+          }
         ms[j]=msj;				 // genero vector ms[j]  
         free(ns);
-      }
+        }
+ }
    for (i=0;i<m;i++){	
 	if(i==0 || ms[i]>msmax){
 		pmax=probas[i];
-		ms[i]=msmax;
+		msmax=ms[i];
 		}
-  } 
-/*
+ 
+ 
    for (i=0;i<m;i++){
 	   x[2]={pmax,pmax-probas[i]};  //aca estoy haciendo cagadas
-	   y[2]={msmax,msmax-ms[i]};
-           aj=Ajuste_Lineal(*x,*y,2, &a, &b);
- 	   pnd[i]=a;	 
-  	    if(pmax<probas[i]){
-	    p[i]=probas[i]-pmax;
+	   y[2]={msmax,msmax-ms[i]};   // mi idea es armar siempre dos vectores que tiene dos puntos no mas
+           aj=Ajuste_Lineal(*x,*y,2, &a, &b);   //aca hago ese ajuste
+ 	         if(p[i]<pmax){
+           pn[i]=a;       // si etoy del lado negativo lo pongo en un vector pendientes negativas
+           probn[i]=p[i]; // y le asigno ese valor de probas  a un vector probasnegativas
+            }
+           else{
+            pp[i]=a;
+            probp[i]=p[i];
+           }
+          }
+          // MI IDEA  aca es que me saque 4 vectores estoy medio estancado pero  quiero aca comparar para quedarm con el  valor clave
+          for (i)
+            for(j){
+            
+            }
 
-		 }
+        /* if(pmax<probas[i]){
+	     p[i]=probas[i]-pmax;
+
+		    }
   	    else
-		{ p[i]=pmax-probas[i]; }	
-	}
+		    { p[i]=pmax-probas[i]; }	
+	      } 
 	//tengo un vecto con las pendientes pnd[m]  y un vector con las p[m]=|p[i]-pmax|, me falta pensar como le pido que compare correctamente
   */}
  free(red);
@@ -505,7 +520,7 @@ if(Programa ==6){
  free(p);
  free(probas);
 
-}
+ }
 
   return 0;
 }
