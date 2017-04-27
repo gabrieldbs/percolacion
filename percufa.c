@@ -237,7 +237,6 @@ if(Programa == 29){
           }
         }
         aj=Ajuste_Lineal(x,y,len,&a,&b);
-        //printf ("aj= %g a %g b %g \n ",aj,a,b);
         if ( j==0 || aj<ajmin){
          mmin= a;
          ajmin=aj;
@@ -438,16 +437,51 @@ if(Programa == 29){
     free(logprobas);
     free(S);
   }
-/*
+
+ 
 if(Programa ==6){
-  // tomo pmin, pmax , m cantidad de probas , iteraciones, redes
-  Quiero que haga  lo  siguiente  calc ns 
-  con ms=ns*s*s (es la suma para todo s)  un numerico
-  le pido que lo corra para todos los p
-  graf ms en func de p 
-  ajust 
+// tomo proba minima , tomo proba maxima, tomo la cantidad de probas en las que voy   a partir, cantidad de iteraciones, y dimencion de la red
+    float *probas, pmin,pmax;
+    double *ns,*ms,msj;
+    int i,j,l, *n, m,It, *red ;
+     sscanf(argv[2], "%f", &pmin);   // proba minima 
+     sscanf(argv[3], "%f", &pmax);   //proba maxima
+     sscanf(argv[4], "%d", &m);      //cantidad de probas
+     sscanf(argv[5], "%d", &It);	//iteraciones
+     // FILE* fp = fopen("Ejercicio_6.txt","a");
+    //fprintf(fp, "Simulacion con probabilidades desde %d a %d con %d particiones, tomando %d 				iteraciones por red\n",pmin,pmax, m, It);
+   // fprintf(fp, "Los resultados son: \n");
+    printf("Ejecutando simulacion ejercicio 6)\n");
+    n = (int *) malloc((argc-6)*sizeof(int));
+    probas = (float *) malloc(m*sizeof(float));
+    ms = (double *) malloc (m* sizeof(double));
+    red = (int *) malloc(sizeof(int));
+    for(i=0;i<m;i++){						//primero tomo vector de probas [m]
+      probas[i] = pmin+i*(pmax-pmin)/m;
+	}
+  for(i=0;i<argc-6;i++){					//aca entiendo que voy a correr las distintas	
+      sscanf(argv[i+6],"%d", &n[i]);				//redes
+      red = (int *) realloc(red, n[i]*n[i]*sizeof(int));	 // genero la red [n]
+      for(j=0;j<m;j++){						//corro las probas
+	msj=0;							//asigno aca msj=0 asi a cada proba lo va reiniciando
+        ns = ns_promedio(red,n[i],probas[j],It);
+	for(l=0;l<n[i]*n[i];l++){				 // genero ms[j]  para cada proba
+	ns[l]=(ns[l]/((double)(It*n[i]*n[i])));			 //aca estoy normalizando          
+	msj=msj+ns[l]*l*l;
+	  }
+	ms[j]=msj;				 // genero vector ms[j]  
+	free(ns);
+	}
+	// aca deberia tener una tira de  prob[j] con msj[j], 
+      }
+
+ free(red);
+ free(n);
+ 
+ free(probas);
+
 }
-  */
+
   return 0;
 }
 
