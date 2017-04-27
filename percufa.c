@@ -458,22 +458,22 @@ if(Programa ==6){
     red = (int *) malloc(sizeof(int));
     for(i=0;i<m;i++){						//primero tomo vector de probas [m]
       probas[i] = pmin+i*(pmax-pmin)/m;
-	}
-  for(i=0;i<argc-6;i++){					//aca entiendo que voy a correr las distintas	
+	  }
+    for(i=0;i<argc-6;i++){					//aca entiendo que voy a correr las distintas	
       sscanf(argv[i+6],"%d", &n[i]);				//redes
       red = (int *) realloc(red, n[i]*n[i]*sizeof(int));	 // genero la red [n]
       for(j=0;j<m;j++){						//corro las probas
-	msj=0;							//asigno aca msj=0 asi a cada proba lo va reiniciando
+        msj=0;							//asigno aca msj=0 asi a cada proba lo va reiniciando
         ns = ns_promedio(red,n[i],probas[j],It);
-	for(l=0;l<n[i]*n[i];l++){				 // genero ms[j]  para cada proba
-	ns[l]=(ns[l]/((double)(It*n[i]*n[i])));			 //aca estoy normalizando          
-	msj=msj+ns[l]*l*l;
-	  }
-	ms[j]=msj;				 // genero vector ms[j]  
-	free(ns);
-	}
-	// aca deberia tener una tira de  prob[j] con msj[j], 
+        for(l=0;l<n[i]*n[i];l++){				 // genero ms[j]  para cada proba
+          ns[l]=(ns[l]/((double)(n[i]*n[i])));			 //aca estoy normalizando     
+          msj=msj+ns[l]*l*l;
+        }
+        ms[j]=msj;				 // genero vector ms[j]  
+        free(ns);
       }
+	// aca deberia tener una tira de  prob[j] con msj[j], 
+    }
 
  free(red);
  free(n);
