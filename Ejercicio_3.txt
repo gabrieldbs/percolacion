@@ -62,3 +62,35 @@ El vector M(L) es:157.015, 349.885, 587.664, 886.796, 1243.83, 1649.19, 2114.89,
 Para un Chi^2 = 0.00317411, el ajuste arroja un D = 1.83846
 Duracion total: 0 horas, 9 minutos y 30 segundos
 
+Simulacion con 30000 iteraciones en cada una por red 
+Los resultados son: 
+20x20 con pc=0.580000 -> M = 156.993 
+Duracion: 0hs, 0min, 0segs
+30x30 con pc=0.590000 -> M = 350.414 
+Duracion: 0hs, 0min, 2segs
+40x40 con pc=0.590000 -> M = 588.312 
+Duracion: 0hs, 0min, 3segs
+50x50 con pc=0.590000 -> M = 884.772 
+Duracion: 0hs, 0min, 4segs
+60x60 con pc=0.590000 -> M = 1242.68 
+Duracion: 0hs, 0min, 6segs
+70x70 con pc=0.590000 -> M = 1646.82 
+Duracion: 0hs, 0min, 9segs
+80x80 con pc=0.590000 -> M = 2107.26 
+Duracion: 0hs, 0min, 10segs
+90x90 con pc=0.590000 -> M = 2618.76 
+Duracion: 0hs, 0min, 14segs
+100x100 con pc=0.590000 -> M = 3184.42 
+Duracion: 0hs, 0min, 18segs
+120x120 con pc=0.590000 -> M = 4459.79 
+Duracion: 0hs, 0min, 25segs
+150x150 con pc=0.590000 -> M = 6722.31 
+Duracion: 0hs, 0min, 42segs
+200x200 con pc=0.590000 -> M = 11368.8 
+Duracion: 0hs, 1min, 15segs
+250x250 con pc=0.590000 -> M = 17083.8 
+Duracion: 0hs, 2min, 5segs
+El vector M(L) es:156.993, 350.414, 588.312, 884.772, 1242.68, 1646.82, 2107.26, 2618.76, 3184.42, 4459.79, 6722.31, 11368.8, 17083.8
+Para un Chi^2 = 0.000161804, el ajuste arroja un D = 1.84826
+Duracion total: 0 horas, 5 minutos y 33 segundos
+
