@@ -26,7 +26,11 @@ double* ns_promedio(int* red, int n, float p, int It);
 double dimension_fractal(int* red, int N, float pc, int It);
 double* scaling(float* probas, int m, int S, float pc, int It);
 double maximizar_cluster(int S, int m, double pmin, double pc, int It);
+<<<<<<< HEAD
 double maximizar_cluster2(int S, double tau, double pmin, double pc, int It);
+=======
+double* ns_promedio_sin_percolante(int* red, int n, float p, int It);
+>>>>>>> 86a3eb5a51d318b7cd9158f2d29ee4aed7a62ccf
 
 int main(int argc,char *argv[])   // Por ahora no hay argumentos por linea
 {    srand((unsigned)time(NULL));
@@ -471,33 +475,52 @@ if(Programa ==6){
       red = (int *) realloc(red, n[i]*n[i]*sizeof(int));	 // genero la red [n]
       for(j=0;j<m;j++){						//corro las probas
         msj=0;							//asigno aca msj=0 asi a cada proba lo va reiniciando
-        ns = ns_promedio(red,n[i],probas[j],It);
+	ns= ns_promedio_sin_percolante(red,n, p,It);
         for(l=0;l<n[i]*n[i];l++){				 // genero ms[j]  para cada proba
           ns[l]=(ns[l]/((double)(n[i]*n[i])));			 //aca estoy normalizando     
           msj=msj+ns[l]*l*l;
-        }
+          }
         ms[j]=msj;				 // genero vector ms[j]  
         free(ns);
-      }
+        }
+ }
    for (i=0;i<m;i++){	
 	if(i==0 || ms[i]>msmax){
 		pmax=probas[i];
-		ms[i]=msmax;
+		msmax=ms[i];
 		}
-  } 
-/*
+ 	   
    for (i=0;i<m;i++){
-	   x[2]={pmax,pmax-probas[i]};  //aca estoy haciendo cagadas
-	   y[2]={msmax,msmax-ms[i]};
-           aj=Ajuste_Lineal(*x,*y,2, &a, &b);
- 	   pnd[i]=a;	 
-  	    if(pmax<probas[i]){
-	    p[i]=probas[i]-pmax;
+	        if(p[i]<pmax){
+           pn[i]=a;       // si etoy del lado negativo lo pongo en un vector pendientes negativas
+           probn[i]=p[i]; // y le asigno ese valor de probas  a un vector probasnegativas
+	   //aj=Ajuste_Lineal(*pn,*probn,i, &a, &b); // se que esto esta mal ...
+                 }
+	   aj[]=Ajuste_Lineal(*pn,*probn,i, &a, &b); // se que esto esta mal ... por hay aca esta bien 
+           
+           else{
+            pp[i]=a;
+            probp[i]=p[i];
+            //bj=Ajuste_Lineal(*pp,*probp,i, &a, &b); // se que esto esta mal ...
+               }
+	     bj[]=Ajuste_Lineal(*pp,*probp,i, &a, &b); // se que esto esta mal ...por hay aca esta bien 
+           
+          }
+          
+	// MI IDEA  aca es que me saque 4 vectores  no se si lo estoy haceindo bien 
+          for (i)
+		x[i]=p
+            for(j){
+            
+            }
 
-		 }
+        /* if(pmax<probas[i]){
+	     p[i]=probas[i]-pmax;
+
+		    }
   	    else
-		{ p[i]=pmax-probas[i]; }	
-	}
+		    { p[i]=pmax-probas[i]; }	
+	      } 
 	//tengo un vecto con las pendientes pnd[m]  y un vector con las p[m]=|p[i]-pmax|, me falta pensar como le pido que compare correctamente
   */}
  free(red);
@@ -506,7 +529,7 @@ if(Programa ==6){
  free(p);
  free(probas);
 
-}
+ }
 
   return 0;
 }
