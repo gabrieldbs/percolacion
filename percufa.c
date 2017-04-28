@@ -26,11 +26,8 @@ double* ns_promedio(int* red, int n, float p, int It);
 double dimension_fractal(int* red, int N, float pc, int It);
 double* scaling(float* probas, int m, int S, float pc, int It);
 double maximizar_cluster(int S, int m, double pmin, double pc, int It);
-<<<<<<< HEAD
 double maximizar_cluster2(int S, double tau, double pmin, double pc, int It);
-=======
 double* ns_promedio_sin_percolante(int* red, int n, float p, int It);
->>>>>>> 86a3eb5a51d318b7cd9158f2d29ee4aed7a62ccf
 
 int main(int argc,char *argv[])   // Por ahora no hay argumentos por linea
 {    srand((unsigned)time(NULL));
@@ -149,7 +146,7 @@ FILE* fp = fopen("Ejercicio_1_c.txt","a");
     fprintf(fp, "Ajuste del Pc en funcion de sigma del Ejercicio 1a y a su vez el parametro nu\n");
     fprintf(fp, "Los resultados son: \n");
     int *red,*n, i,pres,It,l;
-    double *pcs, *vars,*sigma,aj,bj,*j,*L,*a;
+    double *pcs, *vars,*sigma,aj,*j,*L,*a;
     a = (double *) malloc(5*sizeof(double));
     n = (int *) malloc((argc)*sizeof(int));
     pcs = (double *) malloc((argc-4)*sizeof(double));
@@ -181,7 +178,7 @@ FILE* fp = fopen("Ejercicio_1_c.txt","a");
        j[i-4]=log((double) *(a+1)- pcs[i-4]);
     	L[i-4]=log( (double) n[i-4]);
        }
-    bj=Ajuste_Lineal(j,L,argc-4,a+2,a+3);
+    Ajuste_Lineal(j,L,argc-4,a+2,a+3);
     a[4]=(-1.0/((double) *(a+2)));
     
     fprintf (fp, "El parametro nu es %g \n", a[4]);
@@ -201,7 +198,7 @@ FILE* fp = fopen("Ejercicio_1_c.txt","a");
 if(Programa == 29){
 //Ejercicio 1.d)
 // Toma por consola la proba minima, la proba maxima, cantidad de probas, la cantidad de iteraciones y el vector de dimensiones
-    float *probas, pmin,pmax, mmin;
+    float *probas, pmin,pmax, mmin=0;
     double *ns,a,b,*x,*y,tau,aj,ajmin;
     int i,j,k,l, *n, m,It, *red ;
     sscanf(argv[2], "%f", &pmin);
@@ -399,7 +396,7 @@ if(Programa == 29){
 // Toma la proba minima, el pc (proba maxima), la precision, la cantidad de iteraciones y 
 // un vector de tamaños de clusters
     printf("Ejecutando simulacion ejercicio 5\n");
-    int *S, i,It,m,*secs,secsTot,len = argc-6;
+    int *S, i,It,*secs,secsTot,len = argc-6;
     float pc,pmin,pres;
     double *probas, *logprobas, *logS, sigma, zmax,chi;
     sscanf(argv[2], "%f", &pmin); // Proba minima
@@ -447,87 +444,111 @@ if(Programa == 29){
 
  
 if(Programa ==6){
-// tomo proba minima , tomo proba maxima, tomo la cantidad de probas en las que voy   a partir, cantidad de iteraciones, y dimencion de la red
+// tomo proba minima , tomo proba maxima, tomo la cantidad de probas en las que voy   a partir, cantidad de iteraciones, y dimension de la red
     float *probas, pmin,pmax;
-    double *ns,*ms,msj ,*a ,msmax,*b,*x,*y,aj,*pnd,*p;
-    int i,j,l, *n, m,It, *red ;
+    double *ns,*ms,msj ,a ,msmax=0,b,*gammaiz,*piz,*miz,*gammader,*pder,*mder;
+    int i,j,l, n, m,It, *red, imax=0;
      sscanf(argv[2], "%f", &pmin);   // proba minima 
      sscanf(argv[3], "%f", &pmax);   //proba maxima
      sscanf(argv[4], "%d", &m);      //cantidad de probas
      sscanf(argv[5], "%d", &It);	//iteraciones
-     // FILE* fp = fopen("Ejercicio_6.txt","a");
-    //fprintf(fp, "Simulacion con probabilidades desde %d a %d con %d particiones, tomando %d 				iteraciones por red\n",pmin,pmax, m, It);
-   // fprintf(fp, "Los resultados son: \n");
+    sscanf(argv[6],"%d", &n);        //red
+      FILE* fp = fopen("Ejercicio_6.txt","a");
+    fprintf(fp, "Simulacion con probabilidades desde %f a %f con %d particiones, tomando %d iteraciones sonbre una red de %d\n",pmin,pmax, m, It, n);
+    fprintf(fp, "Los resultados son: \n");
     printf("Ejecutando simulacion ejercicio 6)\n");
-    n = (int *) malloc((argc-6)*sizeof(int));
     probas = (float *) malloc(m*sizeof(float));
-    x = (double *) malloc (2* sizeof(double));
-    y = (double *) malloc (2* sizeof(double));
     ms = (double *) malloc (m* sizeof(double));
-    p = (double *) malloc (m* sizeof(double));
-    pnd = (double *) malloc (m* sizeof(double));
-    red = (int *) malloc(sizeof(int));
+    red = (int *) malloc(n*n*sizeof(int));
+    
     for(i=0;i<m;i++){						//primero tomo vector de probas [m]
       probas[i] = pmin+i*(pmax-pmin)/(m-1);
 	  }
-    for(i=0;i<argc-6;i++){					//aca entiendo que voy a correr las distintas	
-      sscanf(argv[i+6],"%d", &n[i]);				//redes
-      red = (int *) realloc(red, n[i]*n[i]*sizeof(int));	 // genero la red [n]
-      for(j=0;j<m;j++){						//corro las probas
-        msj=0;							//asigno aca msj=0 asi a cada proba lo va reiniciando
-	ns= ns_promedio_sin_percolante(red,n, p,It);
-        for(l=0;l<n[i]*n[i];l++){				 // genero ms[j]  para cada proba
-          ns[l]=(ns[l]/((double)(n[i]*n[i])));			 //aca estoy normalizando     
-          msj=msj+ns[l]*l*l;
-          }
-        ms[j]=msj;				 // genero vector ms[j]  
-        free(ns);
+    for(j=0;j<m;j++){					           //corro las probas
+      msj=0;					             		  //asigno aca msj=0 asi a cada proba lo va reiniciando
+      ns= ns_promedio_sin_percolante(red,n, probas[j],It);
+      for(l=0;l<n*n;l++){				 // genero ms[j]  para cada proba
+        ns[l]=(ns[l]/((double)(n*n)));			 //aca estoy normalizando     
+        msj=msj+ns[l]*l*l;
         }
- }
+      ms[j]=msj;				 // genero vector ms[j]  
+      free(ns);
+      }
+  
    for (i=0;i<m;i++){	
-	if(i==0 || ms[i]>msmax){
+    if(ms[i]>msmax){
+
 		pmax=probas[i];
 		msmax=ms[i];
-		}
- 	   
-   for (i=0;i<m;i++){
-	        if(p[i]<pmax){
-           pn[i]=a;       // si etoy del lado negativo lo pongo en un vector pendientes negativas
-           probn[i]=p[i]; // y le asigno ese valor de probas  a un vector probasnegativas
-	   //aj=Ajuste_Lineal(*pn,*probn,i, &a, &b); // se que esto esta mal ...
-                 }
-	   aj[]=Ajuste_Lineal(*pn,*probn,i, &a, &b); // se que esto esta mal ... por hay aca esta bien 
+	  imax=i;
+   	 }
+    }
+     gammaiz=(double *)malloc((imax-1)*sizeof(double));
+ 	   piz =(double *) malloc((imax)*sizeof(double));
+     piz[0]=log((double) -probas[imax-1]+pmax);
+     miz =(double *) malloc((imax)*sizeof(double));
+     miz[0]= log(ms[imax-1]); 
+   for (i=2;i<imax+1;i++){
+	         piz[i-1]=log((double) (pmax-probas[imax-i]));
+           miz[i-1]=log(ms[imax-i]);
+           Ajuste_Lineal(piz,miz,i, &a, &b);
+           gammaiz[i-2]=a;
+           printf("%f\n", a);
+           }     
+     gammader=(double *)malloc((m-imax-2)*sizeof(double));
+     pder =(double *) malloc((m-imax-1)*sizeof(double));
+     pder[0]=log((double) probas[imax+1]-pmax);
+     mder =(double *) malloc((m-imax-1)*sizeof(double));
+     mder[0]= log(ms[imax+1]); 
+   for (i=2;i<m-imax+1-1;i++){
+     
+           pder[i-1]=log((double) probas[imax+i]-pmax);
+           mder[i-1]=log(ms[imax+i]);
            
-           else{
-            pp[i]=a;
-            probp[i]=p[i];
-            //bj=Ajuste_Lineal(*pp,*probp,i, &a, &b); // se que esto esta mal ...
-               }
-	     bj[]=Ajuste_Lineal(*pp,*probp,i, &a, &b); // se que esto esta mal ...por hay aca esta bien 
-           
-          }
-          
-	// MI IDEA  aca es que me saque 4 vectores  no se si lo estoy haceindo bien 
-          for (i)
-		x[i]=p
-            for(j){
-            
+           Ajuste_Lineal(pder,mder,i, &a, &b);
+           gammader[i-2]=a;
+           }
+        int I=0;
+        double deltamin=fabs(gammaiz[0]-gammader[0]);
+        int L=0;
+        if (imax-1>m-imax-2){
+          L=m-imax-2;
+        }else{
+          L=imax-1;
+        }
+        for (i=0; i < L; i++){
+            if(fabs(gammaiz[i]-gammader[i])<deltamin){
+              I = i;
+              deltamin = fabs(gammaiz[i]-gammader[i]);
             }
-
-        /* if(pmax<probas[i]){
-	     p[i]=probas[i]-pmax;
-
-		    }
-  	    else
-		    { p[i]=pmax-probas[i]; }	
-	      } 
-	//tengo un vecto con las pendientes pnd[m]  y un vector con las p[m]=|p[i]-pmax|, me falta pensar como le pido que compare correctamente
-  */}
- free(red);
- free(n);
- free(pnd); 
- free(p);
- free(probas);
+        }
+      fprintf(fp, "Los valores de ms son:\n");
+      for(j=0; j < m-1; j++){
+         fprintf(fp,"%g, ",ms[j]);
+      }
+     fprintf(fp, "%g \n",ms[m-1]);
+     fprintf(fp,"Se encontro un pmax=%g y un deltamin %g, siendo su gamma por derecha %g, y su gamma por izquierda %g para un |p-pmax|=%g\n",pmax,deltamin ,gammader[I],gammaiz[I], pmax-probas[imax-I]);
+     fprintf(fp,"Los gammas de la izquierda son: \n"  );
+     for (i=0; i < imax-2; i++)
+      {
+      fprintf(fp, "%g, ",gammaiz[i] );
+       }
+      fprintf(fp, "%g\n", gammaiz[imax-2]);
+      fprintf(fp,"Los gammas de la derecha son: \n"  );
+      for(j=0; j < m-imax-3; j++){
+         fprintf(fp,"%g, ",gammader[j]);
+         }
+        fprintf(fp, "%g \n\n",gammader[m-imax-3]);
+    
+    fclose(fp);
+   free(red);
+   free(mder);
+   free(pder);
+   free(piz);
+   free(miz);
+   free(gammader);
+   free(gammaiz);
+   free(probas);
 
  }
 
@@ -1023,7 +1044,7 @@ double maximizar_cluster(int S, int m, double pmin, double pc, int It){
 }
 
 double maximizar_cluster2(int S, double tau, double pmin, double pc, int It){
-  double res, *ns, proba, b,c,d,fc,fd, resphi,a; 
+  double res, *ns, b,c,d,fc,fd, resphi,a; 
   int *red,i,j=0;
   red = (int *) malloc(64*64*sizeof(int)); // Creo la red sobre la cual voy a simular
   res=0;
