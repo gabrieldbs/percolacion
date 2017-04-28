@@ -26,6 +26,7 @@ double* ns_promedio(int* red, int n, float p, int It);
 double dimension_fractal(int* red, int N, float pc, int It);
 double* scaling(float* probas, int m, int S, float pc, int It);
 double maximizar_cluster(int S, int m, double pmin, double pc, int It);
+double* ns_promedio_sin_percolante(int* red, int n, float p, int It);
 
 int main(int argc,char *argv[])   // Por ahora no hay argumentos por linea
 {    srand((unsigned)time(NULL));
@@ -470,7 +471,7 @@ if(Programa ==6){
       red = (int *) realloc(red, n[i]*n[i]*sizeof(int));	 // genero la red [n]
       for(j=0;j<m;j++){						//corro las probas
         msj=0;							//asigno aca msj=0 asi a cada proba lo va reiniciando
-        ns = ns_promedio(red,n[i],probas[j],It);
+	ns= ns_promedio_sin_percolante(red,n, p,It);
         for(l=0;l<n[i]*n[i];l++){				 // genero ms[j]  para cada proba
           ns[l]=(ns[l]/((double)(n[i]*n[i])));			 //aca estoy normalizando     
           msj=msj+ns[l]*l*l;
@@ -484,23 +485,27 @@ if(Programa ==6){
 		pmax=probas[i];
 		msmax=ms[i];
 		}
- 
- 
+ 	   
    for (i=0;i<m;i++){
-	   x[2]={pmax,pmax-probas[i]};  //aca estoy haciendo cagadas
-	   y[2]={msmax,msmax-ms[i]};   // mi idea es armar siempre dos vectores que tiene dos puntos no mas
-           aj=Ajuste_Lineal(*x,*y,2, &a, &b);   //aca hago ese ajuste
- 	         if(p[i]<pmax){
+	        if(p[i]<pmax){
            pn[i]=a;       // si etoy del lado negativo lo pongo en un vector pendientes negativas
            probn[i]=p[i]; // y le asigno ese valor de probas  a un vector probasnegativas
-            }
+	   //aj=Ajuste_Lineal(*pn,*probn,i, &a, &b); // se que esto esta mal ...
+                 }
+	   aj[]=Ajuste_Lineal(*pn,*probn,i, &a, &b); // se que esto esta mal ... por hay aca esta bien 
+           
            else{
             pp[i]=a;
             probp[i]=p[i];
-           }
+            //bj=Ajuste_Lineal(*pp,*probp,i, &a, &b); // se que esto esta mal ...
+               }
+	     bj[]=Ajuste_Lineal(*pp,*probp,i, &a, &b); // se que esto esta mal ...por hay aca esta bien 
+           
           }
-          // MI IDEA  aca es que me saque 4 vectores estoy medio estancado pero  quiero aca comparar para quedarm con el  valor clave
+          
+	// MI IDEA  aca es que me saque 4 vectores  no se si lo estoy haceindo bien 
           for (i)
+		x[i]=p
             for(j){
             
             }
