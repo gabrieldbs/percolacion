@@ -447,7 +447,8 @@ if(Programa ==6){
 // tomo proba minima , tomo proba maxima, tomo la cantidad de probas en las que voy   a partir, cantidad de iteraciones, y dimension de la red
     float *probas, pmin,pmax;
     double *ns,*ms,msj ,a ,msmax=0,b,*gammaiz,*piz,*miz,*gammader,*pder,*mder;
-    int i,j,l, n, m,It, *red, imax=0;
+    int i,j,l, n, m,It, *red, imax=0,secsTot = time(NULL);
+    int intervalo=10;   // Cantidad de puntos del ajuste, es mejor si es par
      sscanf(argv[2], "%f", &pmin);   // proba minima 
      sscanf(argv[3], "%f", &pmax);   //proba maxima
      sscanf(argv[4], "%d", &m);      //cantidad de probas
@@ -483,31 +484,29 @@ if(Programa ==6){
 	  imax=i;
    	 }
     }
-     gammaiz=(double *)malloc((imax-1)*sizeof(double));
- 	   piz =(double *) malloc((imax)*sizeof(double));
-     piz[0]=log((double) -probas[imax-1]+pmax);
-     miz =(double *) malloc((imax)*sizeof(double));
-     miz[0]= log(ms[imax-1]); 
-   for (i=2;i<imax+1;i++){
-	         piz[i-1]=log((double) (pmax-probas[imax-i]));
-           miz[i-1]=log(ms[imax-i]);
-           Ajuste_Lineal(piz,miz,i, &a, &b);
-           gammaiz[i-2]=a;
-           printf("%f\n", a);
-           }     
-     gammader=(double *)malloc((m-imax-2)*sizeof(double));
-     pder =(double *) malloc((m-imax-1)*sizeof(double));
-     pder[0]=log((double) probas[imax+1]-pmax);
-     mder =(double *) malloc((m-imax-1)*sizeof(double));
-     mder[0]= log(ms[imax+1]); 
-   for (i=2;i<m-imax+1-1;i++){
-     
-           pder[i-1]=log((double) probas[imax+i]-pmax);
-           mder[i-1]=log(ms[imax+i]);
-           
-           Ajuste_Lineal(pder,mder,i, &a, &b);
-           gammader[i-2]=a;
-           }
+     gammaiz=(double *)malloc((imax-intervalo+1)*sizeof(double));
+ 	   piz =(double *) malloc(intervalo*sizeof(double));
+     miz =(double *) malloc(intervalo*sizeof(double));
+     for (i=0;i<imax-intervalo+1;i++){
+        for(j=0;j<intervalo;j++){
+            piz[j]=log((double) (pmax-probas[i+j]));
+            miz[j]=log(ms[i+j]);
+        }
+         Ajuste_Lineal(piz,miz,intervalo, &a, &b);
+         gammaiz[i]=a;
+     } 
+     gammader=(double *)malloc((m-imax-intervalo+1)*sizeof(double));
+     pder =(double *) malloc(intervalo*sizeof(double));
+     mder =(double *) malloc(intervalo*sizeof(double));
+     for (i=imax+1;i<m-intervalo+1;i++){
+        for(j=0;j<intervalo;j++){
+            pder[j]=log((double) (probas[i+j]-pmax));
+            mder[j]=log(ms[i+j]);
+        }
+         Ajuste_Lineal(pder,mder,intervalo, &a, &b);
+         gammader[i-imax-1]=a;
+     }      
+
         int I=0;
         double deltamin=fabs(gammaiz[0]-gammader[0]);
         int L=0;
@@ -529,18 +528,19 @@ if(Programa ==6){
      fprintf(fp, "%g \n",ms[m-1]);
      fprintf(fp,"Se encontro un pmax=%g y un deltamin %g, siendo su gamma por derecha %g, y su gamma por izquierda %g para un |p-pmax|=%g\n",pmax,deltamin ,gammader[I],gammaiz[I], pmax-probas[imax-I]);
      fprintf(fp,"Los gammas de la izquierda son: \n"  );
-     for (i=0; i < imax-2; i++)
+     for (i=0; i < imax-intervalo; i++)
       {
       fprintf(fp, "%g, ",gammaiz[i] );
        }
-      fprintf(fp, "%g\n", gammaiz[imax-2]);
+      fprintf(fp, "%g\n", gammaiz[imax-intervalo]);
       fprintf(fp,"Los gammas de la derecha son: \n"  );
-      for(j=0; j < m-imax-3; j++){
+      for(j=0; j < m-imax-intervalo; j++){
          fprintf(fp,"%g, ",gammader[j]);
          }
-        fprintf(fp, "%g \n\n",gammader[m-imax-3]);
-    
-    fclose(fp);
+   fprintf(fp, "%g \n",gammader[m-imax-intervalo]);
+   secsTot = time(NULL)-secsTot;int mins = secsTot/60;int horas = mins/60;
+   fprintf(fp, "Duracion total: %d horas, %d minutos y %d segundos\n\n", horas, mins % 60, secsTot % 60);
+   fclose(fp);
    free(red);
    free(mder);
    free(pder);
@@ -549,6 +549,7 @@ if(Programa ==6){
    free(gammader);
    free(gammaiz);
    free(probas);
+   free(ms);
 
  }
 
