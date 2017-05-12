@@ -1,0 +1,7 @@
+Corrimos usando el comando  gcc - O3 - Wall -o percufa.e percufa.c -lm
+Despues ejecutamos de la siguiente  manera
+./percufa.e 1er 2do 3ro ..
+Donde el primer argumento representa el ejercicio que queriamos ejecutar y del segundo,
+en adelante los argumentos propios de cada ejercicio.Dentro del codigo esta especificado 
+en cada ejercicio, que argumentos se pide.
+Para realizar los graficos utilizamos Python y Matlab  a partir de los archivos generados.
